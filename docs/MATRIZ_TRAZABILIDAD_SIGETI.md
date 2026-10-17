@@ -1,9 +1,8 @@
 # Matriz de Trazabilidad - SIGETI
 
 **Sistema de Gestión de Tickets e Inventario**  
-*Roles estandarizados: `Usuario`, `Usuario final`, `Soporte técnico`, `Administrador`*
 
-## 1. Historias de Usuario Funcionales
+## 1. Historias de Usuario
 
 | US ID | Historia de Usuario | Prioridad | Sprint | Estado | Asignado a | Caso de Prueba | Complejidad | Estabilidad | Code `{commit}` |
 | :---: | :--- | :---: | :---: | :---: | :--- | :--- | :---: | :---: | :---: |
