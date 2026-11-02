@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+<h:head>
+    <title>SIGETI - Sistema de Tickets</title>
+    <style>
+        body {
+            background-color: #f4f6f9 !important;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+        .navbar {
+            background-color: #1a252f !important;
+            color: white !important;
+            padding: 12px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .navbar-brand-box {
+            display: flex;
+            align-items: baseline;
+            gap: 10px;
+        }
+        .navbar-brand {
+            font-size: 22px;
+            font-weight: bold;
+            color: white;
+            letter-spacing: 1px;
+        }
+        .navbar-subtitle {
+            font-size: 13px;
+            color: #aeb9c4;
+        }
+        .navbar-menu {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        body .ui-button.nav-btn {
+            background: transparent !important;
+            border: 1px solid #4a5a6a !important;
+            color: #ffffff !important;
+            border-radius: 4px;
+            font-size: 13px;
+            padding: 4px 12px;
+            box-shadow: none !important;
+        }
+        body .ui-button.nav-btn.active {
+            background: #ffffff !important;
+            color: #1a252f !important;
+            border-color: #ffffff !important;
+            font-weight: bold;
+        }
+        body .ui-button.btn-logout {
+            background-color: #dc3545 !important;
+            border-color: #dc3545 !important;
+            color: white !important;
+            margin-left: 10px;
+        }
+        .container {
+            width: 95%;
+            max-width: 1200px;
+            margin: 40px auto;
+        }
+        .page-title {
+            color: #1a252f;
+            font-size: 26px;
+            margin-bottom: 20px;
+            margin-top: 0;
+            font-weight: 700;
+        }
+        .card {
+            background-color: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+            margin-bottom: 20px;
+        }
+        .card h3 {
+            margin-top: 0;
+            font-size: 18px;
+            color: #1a252f;
+            margin-bottom: 18px;
+            font-weight: 700;
+        }
+        .w-full {
+            width: 100% !important;
+        }
+    </style>
+</h:head>
+<h:body>
+    <h:form id="mainForm">
+
+        <!-- BARRA DE NAVEGACIÓN -->
+        <div class="navbar">
+            <div class="navbar-brand-box">
+                <span class="navbar-brand">SIGETI</span>
+                <span class="navbar-subtitle">Sistema de tickets</span>
+            </div>
+            <div class="navbar-menu">
+                <p:commandButton value="Inicio" action="#{indexUI.irAInicio}" update="@form"
+                                 styleClass="nav-btn #{indexUI.vistaActual eq 'inicio' ? 'active' : ''}"/>
+
+                <p:commandButton value="Tickets" type="button" styleClass="nav-btn"/>
+
+                <p:commandButton value="Seguimientos" type="button" styleClass="nav-btn"/>
+
+                <p:commandButton value="Tablas" type="button" styleClass="nav-btn"/>
+
+                <p:commandButton value="Consultas" action="#{indexUI.irAConsultas}" update="@form"
+                                 styleClass="nav-btn #{indexUI.vistaActual eq 'consultas' ? 'active' : ''}"/>
+
+                <p:commandButton value="Cerrar sesión" action="#{loginUI.cerrarSesion}" styleClass="nav-btn btn-logout" ajax="false"/>
+            </div>
+        </div>
+
+        <div class="container">
+
+            <!-- VISTA 1: INICIO (EN BLANCO) -->
+            <h:panelGroup rendered="#{indexUI.vistaActual eq 'inicio'}">
+            </h:panelGroup>
+
+            <!-- VISTA 2: CONSULTAS (TABLA DE DISPOSITIVOS) -->
+            <h:panelGroup rendered="#{indexUI.vistaActual eq 'consultas'}">
+                <h1 class="page-title">Consulta de Dispositivos</h1>
+                <div class="card">
+                    <h3>Dispositivos asignados al RFC: #{indexUI.loginUI.usuario.rfc}</h3>
+
+                    <p:dataTable value="#{indexUI.equiposAsignados}" var="equipo" styleClass="w-full" emptyMessage="No hay dispositivos registrados para este RFC.">
+                        <p:column headerText="Número Inventario">
+                            <h:outputText value="#{equipo.idEquipo}" />
+                        </p:column>
+
+                        <p:column headerText="Marca">
+                            <h:outputText value="#{equipo.marca}" />
+                        </p:column>
+
+                        <p:column headerText="Modelo">
+                            <h:outputText value="#{equipo.modelo}" />
+                        </p:column>
+
+                        <p:column headerText="Área Asignada">
+                            <h:outputText value="#{equipo.areaAsignada}" />
+                        </p:column>
+
+                        <p:column headerText="Estado Hardware">
+                            <h:outputText value="#{equipo.estadoHardware}" />
+                        </p:column>
+
+                        <p:column headerText="RFC Usuario Asignado">
+                            <h:outputText value="#{equipo.idUsuarioAsignado}" />
+                        </p:column>
+                    </p:dataTable>
+                </div>
+            </h:panelGroup>
+
+        </div>
+    </h:form>
+</h:body>
+</html>

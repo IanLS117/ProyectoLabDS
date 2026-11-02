@@ -1,52 +1,30 @@
 package mx.desarrollo.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import java.io.Serializable;
 
 @Entity
-@Table(name = "usuario", schema = "desarrollo")
+@Table(name = "usuario")
 public class Usuario implements Serializable {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "idusuario", nullable = false)
-    private Integer id;
+    @Column(name = "RFC", length = 13, nullable = false)
+    private String rfc;
 
-    @Size(max = 45)
-    @NotNull
-    @Column(name = "correo", nullable = false, length = 45)
-    private String correo;
-
-    @Size(max = 45)
-    @NotNull
-    @Column(name = "contrasena", nullable = false, length = 45)
+    @Column(name = "Contrasena", nullable = false)
     private String contrasena;
+
+    @Column(name = "Nombre")
+    private String nombre;
 
     public Usuario() {}
 
-    public Integer getId() {
-        return id;
-    }
+    public String getRfc() { return rfc; }
+    public void setRfc(String rfc) { this.rfc = rfc; }
 
-    public void setId(Integer id) {
-        this.id = id;
-    }
+    public String getContrasena() { return contrasena; }
+    public void setContrasena(String contrasena) { this.contrasena = contrasena; }
 
-    public String getCorreo() {
-        return correo;
-    }
-
-    public void setCorreo(String correo) {
-        this.correo = correo;
-    }
-
-    public String getContrasena() {
-        return contrasena;
-    }
-
-    public void setContrasena(String contrasena) {
-        this.contrasena = contrasena;
-    }
+    public String getNombre() { return nombre; }
+    public void setNombre(String nombre) { this.nombre = nombre; }
 }

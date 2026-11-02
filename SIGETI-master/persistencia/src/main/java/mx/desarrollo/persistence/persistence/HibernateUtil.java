@@ -8,7 +8,7 @@ import jakarta.persistence.Persistence;
  * Clase utilitaria para inicializar y obtener el {@link EntityManagerFactory}.
  */
 public class HibernateUtil {
-    //Issac Inzunza
+    // Issac Inzunza
     private static final EntityManagerFactory ENTITY_MANAGER_FACTORY = buildEntityManagerFactory();
 
     /**

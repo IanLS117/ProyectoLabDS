@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+<h:head>
+    <title>SIGETI - Iniciar Sesión</title>
+    <style>
+        body {
+            background-color: #f4f6f9;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .login-box {
+            background: #ffffff;
+            border-radius: 8px;
+            padding: 40px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .login-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .login-header h1 {
+            color: #1a252f;
+            font-size: 26px;
+            margin: 0;
+        }
+        .login-header p {
+            color: #6c757d;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+        .form-field {
+            margin-bottom: 20px;
+        }
+        .form-field label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #495057;
+            font-size: 14px;
+        }
+        .w-full {
+            width: 100% !important;
+        }
+        body .ui-button.btn-login {
+            background-color: #1a62d5 !important;
+            border-color: #1a62d5 !important;
+            color: white !important;
+            width: 100%;
+            padding: 10px;
+            font-weight: 600;
+            font-size: 15px;
+            margin-top: 10px;
+        }
+    </style>
+</h:head>
+<h:body>
+    <div class="login-box">
+        <div class="login-header">
+            <h1>SIGETI</h1>
+            <p>Sistema de Gestión de Tickets</p>
+        </div>
+
+        <h:form id="loginForm">
+            <p:messages id="messages" showDetail="true" closable="true" />
+
+            <div class="form-field">
+                <p:outputLabel for="rfc" value="RFC del Usuario" />
+                <p:inputText id="rfc" value="#{loginUI.usuario.rfc}" required="true" styleClass="w-full" placeholder="Ingrese su RFC" />
+            </div>
+
+            <div class="form-field">
+                <p:outputLabel for="pass" value="Contraseña" />
+                <p:password id="pass" value="#{loginUI.usuario.contrasena}" required="true" styleClass="w-full" placeholder="••••••••" />
+            </div>
+
+            <p:commandButton value="Iniciar Sesión" action="#{loginUI.login}" update="@form" styleClass="btn-login" ajax="false" />
+        </h:form>
+    </div>
+</h:body>
+</html>

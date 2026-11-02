@@ -1,0 +1,5 @@
+mx\desarrollo\persistence\persistence\HibernateUtil.class
+mx\desarrollo\persistence\integration\ServiceLocator.class
+mx\desarrollo\persistence\persistence\AbstractDAO.class
+mx\desarrollo\persistence\dao\EquipoDAO.class
+mx\desarrollo\persistence\dao\UsuarioDAO.class
