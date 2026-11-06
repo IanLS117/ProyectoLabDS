@@ -1,37 +1,56 @@
 package mx.desarrollo.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import java.io.Serializable;
 
 @Entity
-@Table(name = "usuario", schema = "desarrollo")
+@Table(name = "usuario", schema = "sigeti")
 public class Usuario implements Serializable {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "idusuario", nullable = false)
-    private Integer id;
+    @Column(name = "rfc", length = 13)
+    private String rfc;
 
-    @Size(max = 45)
-    @NotNull
-    @Column(name = "correo", nullable = false, length = 45)
+    @Column(name = "nombre", nullable = false, length = 80)
+    private String nombre;
+
+    @Column(name = "apellidos", nullable = false, length = 100)
+    private String apellidos;
+
+    @Column(name = "correo", nullable = false, length = 120, unique = true)
     private String correo;
 
-    @Size(max = 45)
-    @NotNull
-    @Column(name = "contrasena", nullable = false, length = 45)
+    @Column(name = "contrasena", nullable = false, length = 255)
     private String contrasena;
 
-    public Usuario() {}
+    @Column(name = "id_rol", nullable = false)
+    private int idRol;
 
-    public Integer getId() {
-        return id;
+    public Usuario() {
     }
 
-    public void setId(Integer id) {
-        this.id = id;
+    public String getRfc() {
+        return rfc;
+    }
+
+    public void setRfc(String rfc) {
+        this.rfc = rfc;
+    }
+
+    public String getNombre() {
+        return nombre;
+    }
+
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
+
+    public String getApellidos() {
+        return apellidos;
+    }
+
+    public void setApellidos(String apellidos) {
+        this.apellidos = apellidos;
     }
 
     public String getCorreo() {
@@ -48,5 +67,13 @@ public class Usuario implements Serializable {
 
     public void setContrasena(String contrasena) {
         this.contrasena = contrasena;
+    }
+
+    public int getIdRol() {
+        return idRol;
+    }
+
+    public void setIdRol(int idRol) {
+        this.idRol = idRol;
     }
 }
