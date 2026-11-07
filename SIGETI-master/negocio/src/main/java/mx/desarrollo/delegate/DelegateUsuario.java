@@ -32,7 +32,7 @@ public class DelegateUsuario {
             return null;
         }
 
-        // Evitamos conservar el hash en el usuario que irá a la sesion
+        // aqui se evita conservar el hash en el usuario que irá a la sesion
         usuario.setContrasena(null);
 
         return usuario;

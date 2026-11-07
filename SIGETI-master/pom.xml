@@ -12,7 +12,6 @@
     <modules>
         <module>entidad</module>
         <module>persistencia</module>
-        <module>persistencia</module>
         <module>negocio</module>
         <module>vista</module>
     </modules>

@@ -1,51 +1,77 @@
-<?xml version='1.0' encoding='UTF-8' ?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:h="http://xmlns.jcp.org/jsf/html"
-      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:h="jakarta.faces.html"
       xmlns:p="http://primefaces.org/ui">
-    <h:head>
-        <title>Sistema Base - Inicio</title>
-    </h:head>
-    <h:body>
-        <p:panelGrid class="txt">
-            <f:facet name="header">  
-                <p:row>
-                    <p:column colspan="2"><p:graphicImage url="resources/user.png" class="logo"/></p:column>
-                </p:row>
-            </f:facet>
-            <p:row>
-                <p:column styleClass="celda">ID Usuario:</p:column>
-                <p:column><h:outputText value="#{loginUI.usuario.id}" /></p:column>
-            </p:row>
-            <p:row>
-                <p:column styleClass="celda">Correo:</p:column>
-                <p:column><h:outputText value="#{loginUI.usuario.correo}" /></p:column>
-            </p:row>
-        </p:panelGrid>
-    </h:body>
-    <style>
-        .logo{
-            width: 170px;
-        }
-        .celda{
-            width: 35%;
-            background-color: #089b4d;
-            color:white;
-        }
-        .txt{
-            position: absolute;
-            top:0;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 35%;
-            width: 25%;
-            padding: 25px;
-            margin: auto;
-            background: white;
-            border-radius: 5px;
-            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
-        }
-    </style>
+
+<h:head>
+    <title>Inicio | SIGETI</title>
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0"/>
+
+    <h:outputStylesheet name="login.css"/>
+    <h:outputStylesheet name="inicio.css"/>
+</h:head>
+
+<h:body>
+    <header class="encabezado encabezado-inicio">
+        <div>
+            <strong>SIGETI</strong>
+            <span>Sistema de tickets</span>
+        </div>
+
+        <h:form id="formSalir">
+            <p:commandButton value="Cerrar sesión"
+                             action="#{loginUI.cerrarSesion}"
+                             ajax="false"
+                             styleClass="boton-salir"/>
+        </h:form>
+    </header>
+
+    <main class="contenedor">
+        <section class="tarjeta tarjeta-inicio">
+            <h1>
+                Bienvenido,
+                <h:outputText value="#{loginUI.usuario.nombre}"/>
+            </h1>
+
+            <p class="descripcion">
+                Has iniciado sesión en SIGETI.
+            </p>
+
+            <h2>Datos de tu cuenta</h2>
+
+            <dl class="datos-cuenta">
+                <dt>RFC</dt>
+                <dd>
+                    <h:outputText value="#{loginUI.usuario.rfc}"/>
+                </dd>
+
+                <dt>Nombre completo</dt>
+                <dd>
+                    <h:outputText
+                            value="#{loginUI.usuario.nombre} #{loginUI.usuario.apellidos}"/>
+                </dd>
+
+                <dt>Correo</dt>
+                <dd>
+                    <h:outputText value="#{loginUI.usuario.correo}"/>
+                </dd>
+
+                <dt>Rol</dt>
+                <dd>
+                    <h:outputText
+                            value="#{loginUI.usuario.rol.nombreRol}"/>
+                </dd>
+            </dl>
+            <h:panelGroup layout="block"
+                          rendered="#{loginUI.usuario.tienePermiso('atender_tickets')}">
+                <h2>Opciones disponibles</h2>
+                <h:link outcome="/seguimientos" value="Atender tickets"/>
+            </h:panelGroup>
+        </section>
+    </main>
+</h:body>
+
 </html>
