@@ -41,9 +41,10 @@ public abstract class AbstractDAO<T> {
 
     // Find by ID
     public Optional<T> find(Object id) {
-        return Optional.ofNullable(getEntityManager().find(entityClass, id));
+        return Optional.ofNullable(
+                execute(em -> em.find(entityClass, id))
+        );
     }
-
     public Optional<T> findFresh(Object id) {
         return Optional.ofNullable(execute(em -> {
             T entity = em.find(entityClass, id);
@@ -162,15 +163,28 @@ public abstract class AbstractDAO<T> {
     // Optional: for custom return values
     protected <R> R execute(Function<EntityManager, R> function) {
         EntityManager em = getEntityManager();
-        EntityTransaction tx = em.getTransaction();
+        EntityTransaction tx = null;
+
         try {
+            tx = em.getTransaction();
             tx.begin();
+
             R result = function.apply(em);
+
             tx.commit();
             return result;
+
         } catch (RuntimeException e) {
-            if (tx.isActive()) tx.rollback();
+            if (tx != null && tx.isActive()) {
+                tx.rollback();
+            }
+
             throw e;
+
+        } finally {
+            if (em.isOpen()) {
+                em.close();
+            }
         }
     }
 
