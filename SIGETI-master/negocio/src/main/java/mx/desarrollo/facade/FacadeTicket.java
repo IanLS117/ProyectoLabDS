@@ -14,4 +14,8 @@ public class FacadeTicket {
     public Ticket registrarTicket(String rfc, String numeroInventario, Integer idTipo, String descripcion) {
         return new DelegateTicket().registrarTicket(rfc, numeroInventario, idTipo, descripcion);
     }
+
+    public List<Ticket> obtenerTickets() {
+        return new DelegateTicket().obtenerTickets();
+    }
 }

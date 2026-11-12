@@ -9,6 +9,7 @@
         <class>mx.desarrollo.entity.Equipo</class>
         <class>mx.desarrollo.entity.TipoIncidencia</class>
         <class>mx.desarrollo.entity.Ticket</class>
+        <class>mx.desarrollo.entity.Seguimiento</class>
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
         <properties>
             <property name="jakarta.persistence.jdbc.driver" value="com.mysql.cj.jdbc.Driver"/>

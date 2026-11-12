@@ -13,6 +13,7 @@
             <h:link outcome="/index" value="Inicio"/>
             <h:link outcome="/mis-equipos" value="Mis equipos" rendered="#{loginUI.usuario.tienePermiso('consultar_equipos')}"/>
             <h:link outcome="/nuevo-ticket" value="Registrar ticket" rendered="#{loginUI.usuario.tienePermiso('crear_ticket')}"/>
+            <h:link outcome="/seguimientos" value="Seguimientos" rendered="#{loginUI.usuario.tienePermiso('atender_tickets')}"/>
         </nav>
         <h:form id="salir">
             <p:commandButton value="Cerrar sesión" action="#{loginUI.cerrarSesion}" ajax="false" styleClass="secondary"/>

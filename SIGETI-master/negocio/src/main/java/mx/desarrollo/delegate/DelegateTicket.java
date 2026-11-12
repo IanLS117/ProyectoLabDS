@@ -31,4 +31,8 @@ public class DelegateTicket {
         }
         return new TicketDAO().registrar(rfc, numeroInventario, idTipo, descripcionNormalizada);
     }
+
+    public List<Ticket> obtenerTickets() {
+        return new TicketDAO().obtenerTodos();
+    }
 }

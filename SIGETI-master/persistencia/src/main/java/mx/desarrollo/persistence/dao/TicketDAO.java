@@ -12,6 +12,8 @@ import mx.desarrollo.entity.TipoIncidencia;
 import mx.desarrollo.entity.Usuario;
 import mx.desarrollo.entity.UsuarioFinal;
 import mx.desarrollo.persistence.persistence.HibernateUtil;
+import jakarta.persistence.TypedQuery;
+import java.util.List;
 
 public class TicketDAO {
 
@@ -55,6 +57,21 @@ public class TicketDAO {
             throw error;
         } finally {
             manager.close();
+        }
+    }
+
+    public List<Ticket> obtenerTodos() {
+        EntityManager em = HibernateUtil.getEntityManager();
+        try {
+            TypedQuery<Ticket> query = em.createQuery(
+                    "SELECT t FROM Ticket t JOIN FETCH t.equipo ORDER BY t.fechaCreacion DESC",
+                    Ticket.class
+            );
+            return query.getResultList();
+        } finally {
+            if (em != null && em.isOpen()) {
+                em.close();
+            }
         }
     }
 }
