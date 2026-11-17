@@ -31,4 +31,11 @@ public class DelegateTicket {
         }
         return new TicketDAO().registrar(rfc, numeroInventario, idTipo, descripcionNormalizada);
     }
+
+    public List<Ticket> obtenerTodosAdmin(String rfc) {
+        if (rfc == null || rfc.isBlank()) {
+            throw new IllegalArgumentException("No se pudo identificar al usuario autenticado.");
+        }
+        return new TicketDAO().obtenerTodosAdmin(rfc);
+    }
 }

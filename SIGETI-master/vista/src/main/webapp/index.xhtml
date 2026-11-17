@@ -14,11 +14,18 @@
                 <h2>Mis equipos</h2><p>Consulta el inventario que tienes asignado.</p>
                 <h:link outcome="/mis-equipos" value="Consultar mis equipos" styleClass="button"/>
             </h:panelGroup>
+
             <h:panelGroup layout="block" styleClass="card" rendered="#{loginUI.usuario.tienePermiso('crear_ticket')}">
                 <h2>Registrar ticket</h2><p>Selecciona tu equipo y describe la incidencia.</p>
                 <h:link outcome="/nuevo-ticket" value="Registrar una incidencia" styleClass="button"/>
             </h:panelGroup>
-            <h:panelGroup layout="block" styleClass="card" rendered="#{not loginUI.usuario.tienePermiso('crear_ticket') and not loginUI.usuario.tienePermiso('consultar_equipos')}">
+
+            <h:panelGroup layout="block" styleClass="card" rendered="#{loginUI.usuario.tienePermiso('administrar_tickets')}">
+                <h2>Administrar tickets</h2><p>Consulta todos los tickets registrados en el sistema para supervisar su atención.</p>
+                <h:link outcome="/tickets-admin" value="Consultar todos los tickets" styleClass="button"/>
+            </h:panelGroup>
+
+            <h:panelGroup layout="block" styleClass="card" rendered="#{not loginUI.usuario.tienePermiso('crear_ticket') and not loginUI.usuario.tienePermiso('consultar_equipos') and not loginUI.usuario.tienePermiso('administrar_tickets')}">
                 <h2>Acceso por rol verificado</h2>
                 <p>Tu sesión corresponde al rol <h:outputText value="#{loginUI.usuario.rol.nombreRol}"/>.</p>
                 <p>Las herramientas de atención y administración se implementarán en los siguientes sprints.</p>

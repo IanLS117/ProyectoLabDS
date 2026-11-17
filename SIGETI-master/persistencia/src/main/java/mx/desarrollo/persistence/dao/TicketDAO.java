@@ -12,6 +12,8 @@ import mx.desarrollo.entity.TipoIncidencia;
 import mx.desarrollo.entity.Usuario;
 import mx.desarrollo.entity.UsuarioFinal;
 import mx.desarrollo.persistence.persistence.HibernateUtil;
+import jakarta.persistence.TypedQuery;
+import java.util.List;
 
 public class TicketDAO {
 
@@ -53,6 +55,27 @@ public class TicketDAO {
                 transaccion.rollback();
             }
             throw error;
+        } finally {
+            manager.close();
+        }
+    }
+
+    public List<Ticket> obtenerTodosAdmin(String rfc) {
+        EntityManager manager = HibernateUtil.getEntityManager();
+        try {
+            Usuario actor = manager.find(Usuario.class, rfc);
+            if (actor == null || !actor.tienePermiso("administrar_tickets")) {
+                throw new IllegalArgumentException("No tienes permiso para consultar todos los tickets.");
+            }
+            TypedQuery<Ticket> consulta = manager.createQuery(
+                    "SELECT t FROM Ticket t "
+                            + "JOIN FETCH t.usuario "
+                            + "JOIN FETCH t.equipo "
+                            + "JOIN FETCH t.tipoIncidencia "
+                            + "ORDER BY t.fechaCreacion DESC",
+                    Ticket.class
+            );
+            return consulta.getResultList();
         } finally {
             manager.close();
         }

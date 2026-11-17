@@ -1,0 +1,126 @@
+<ui:composition template="/WEB-INF/templates/principal.xhtml"
+                xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="jakarta.faces.facelets"
+                xmlns:h="jakarta.faces.html"
+                xmlns:f="jakarta.faces.core"
+                xmlns:p="http://primefaces.org/ui">
+
+    <ui:define name="titulo">Administración de Tickets</ui:define>
+
+    <ui:define name="contenido">
+        <h:form id="formAdminTickets">
+            <p:growl id="mensajes" showDetail="true" life="4000"/>
+
+            <div class="grid">
+                <div class="card">
+                    <h3>Total de tickets</h3>
+                    <p><strong><h:outputText value="#{ticketsAdminUI.totalTickets}"/></strong> registrados en el sistema</p>
+                </div>
+                <div class="card">
+                    <h3>Enviados</h3>
+                    <p><strong><h:outputText value="#{ticketsAdminUI.totalEnviados}"/></strong> pendientes de atención</p>
+                </div>
+                <div class="card">
+                    <h3>En atención</h3>
+                    <p><strong><h:outputText value="#{ticketsAdminUI.totalEnAtencion}"/></strong> en proceso técnico</p>
+                </div>
+                <div class="card">
+                    <h3>Resueltos / Cerrados</h3>
+                    <p><strong><h:outputText value="#{ticketsAdminUI.totalResueltos}"/></strong> finalizados</p>
+                </div>
+            </div>
+
+            <section class="panel section-space">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h2>Listado general de incidencias</h2>
+                    <p:commandButton value="Actualizar listado"
+                                     icon="pi pi-refresh"
+                                     action="#{ticketsAdminUI.cargarTickets}"
+                                     update="formAdminTickets"
+                                     styleClass="secondary"/>
+                </div>
+
+                <p:dataTable id="tablaTickets"
+                             var="t"
+                             value="#{ticketsAdminUI.tickets}"
+                             widgetVar="tablaTicketsWidget"
+                             filteredValue="#{ticketsAdminUI.ticketsFiltrados}"
+                             paginator="true"
+                             rows="10"
+                             paginatorPosition="bottom"
+                             emptyMessage="No se encontraron tickets registrados en el sistema.">
+
+                    <f:facet name="header">
+                        <div style="display: flex; justify-content: flex-end;">
+                            <p:inputText id="globalFilter"
+                                         onkeyup="PF('tablaTicketsWidget').filter()"
+                                         placeholder="Buscar por folio, RFC, equipo o estado..."
+                                         style="width: 300px;"/>
+                        </div>
+                    </f:facet>
+
+                    <p:column headerText="Folio" sortBy="#{t.folio}" filterBy="#{t.folio}" filterMatchMode="contains">
+                        <h:outputText value="#{t.folio}"/>
+                    </p:column>
+
+                    <p:column headerText="Solicitante (RFC)" sortBy="#{t.usuario.rfcUsuario}" filterBy="#{t.usuario.rfcUsuario}" filterMatchMode="contains">
+                        <h:outputText value="#{t.usuario.rfcUsuario}"/>
+                    </p:column>
+
+                    <p:column headerText="Equipo" sortBy="#{t.equipo.numeroInventario}" filterBy="#{t.equipo.numeroInventario}" filterMatchMode="contains">
+                        <h:outputText value="#{t.equipo.numeroInventario}"/>
+                    </p:column>
+
+                    <p:column headerText="Descripción del problema" filterBy="#{t.descripcion}" filterMatchMode="contains">
+                        <h:outputText value="#{t.descripcion}"/>
+                    </p:column>
+
+                    <p:column headerText="Estado" sortBy="#{t.estado}" filterBy="#{t.estado}" filterMatchMode="contains">
+                        <h:outputText value="#{t.estado}"/>
+                    </p:column>
+
+                    <p:column headerText="Fecha de registro" sortBy="#{t.fechaCreacion}">
+                        <h:outputText value="#{ticketsAdminUI.formatearFecha(t.fechaCreacion)}"/>
+                    </p:column>
+
+                    <p:column headerText="Acciones" style="width: 130px; text-align: center;">
+                        <p:commandButton value="Ver detalle"
+                                         icon="pi pi-eye"
+                                         action="#{ticketsAdminUI.seleccionarTicket(t)}"
+                                         update=":formAdminTickets:dialogDetalle"
+                                         oncomplete="PF('dlgDetalleWidget').show()"/>
+                    </p:column>
+                </p:dataTable>
+            </section>
+
+            <p:dialog id="dialogDetalle"
+                      header="Detalle del Ticket"
+                      widgetVar="dlgDetalleWidget"
+                      modal="true"
+                      resizable="false"
+                      width="550">
+                <h:panelGroup rendered="#{not empty ticketsAdminUI.ticketSeleccionado}">
+                    <dl class="account">
+                        <dt>Folio</dt>
+                        <dd><h:outputText value="#{ticketsAdminUI.ticketSeleccionado.folio}"/></dd>
+
+                        <dt>Estado actual</dt>
+                        <dd><h:outputText value="#{ticketsAdminUI.ticketSeleccionado.estado}"/></dd>
+
+                        <dt>Fecha de creación</dt>
+                        <dd><h:outputText value="#{ticketsAdminUI.formatearFecha(ticketsAdminUI.ticketSeleccionado.fechaCreacion)}"/></dd>
+
+                        <dt>Solicitante (RFC)</dt>
+                        <dd><h:outputText value="#{ticketsAdminUI.ticketSeleccionado.usuario.rfcUsuario}"/></dd>
+
+                        <dt>Equipo (Inventario)</dt>
+                        <dd><h:outputText value="#{ticketsAdminUI.ticketSeleccionado.equipo.numeroInventario}"/></dd>
+
+                        <dt>Descripción completa</dt>
+                        <dd><h:outputText value="#{ticketsAdminUI.ticketSeleccionado.descripcion}"/></dd>
+                    </dl>
+                </h:panelGroup>
+            </p:dialog>
+        </h:form>
+    </ui:define>
+</ui:composition>
