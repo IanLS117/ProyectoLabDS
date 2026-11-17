@@ -28,6 +28,10 @@ public class Ticket implements Serializable {
     @JoinColumn(name = "rfc_usuario_final", nullable = false)
     private UsuarioFinal usuario;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "rfc_tecnico")
+    private Usuario tecnico;
+
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "numero_inventario", nullable = false)
     private Equipo equipo;
@@ -50,6 +54,8 @@ public class Ticket implements Serializable {
     public void setFolio(String folio) { this.folio = folio; }
     public UsuarioFinal getUsuario() { return usuario; }
     public void setUsuario(UsuarioFinal usuario) { this.usuario = usuario; }
+    public Usuario getTecnico() { return tecnico; }
+    public void setTecnico(Usuario tecnico) { this.tecnico = tecnico; }
     public Equipo getEquipo() { return equipo; }
     public void setEquipo(Equipo equipo) { this.equipo = equipo; }
     public TipoIncidencia getTipoIncidencia() { return tipoIncidencia; }

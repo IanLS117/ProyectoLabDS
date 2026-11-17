@@ -29,7 +29,10 @@ public class DelegateTicket {
         if (descripcionNormalizada.length() > 4000) {
             throw new IllegalArgumentException("La descripción admite hasta 4000 caracteres.");
         }
-        return new TicketDAO().registrar(rfc, numeroInventario, idTipo, descripcionNormalizada);
+        AsignadorTecnico asignador = new AsignadorTecnico();
+        // Entregamos el método al DAO para que lo ejecute durante el registro.
+        return new TicketDAO().registrar(rfc, numeroInventario, idTipo, descripcionNormalizada,
+                asignador::seleccionar);
     }
 
     public List<Ticket> obtenerTickets() {

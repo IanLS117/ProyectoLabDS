@@ -1,0 +1,3 @@
+# Configuración personal de IntelliJ (puede contener credenciales locales).
+.idea/
+*.iml
