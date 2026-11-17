@@ -1,5 +1,10 @@
 # Prueba del Sprint 1 en MySQL Server
 
+> Esta guía conserva las pruebas de la base del Sprint 1. Para la rama actual,
+> sigue primero [ARRANQUE_INTELLIJ.md](ARRANQUE_INTELLIJ.md): una base nueva necesita
+> los scripts 01, 02, 03 y 04; una existente solo las actualizaciones pendientes.
+> No uses únicamente 01 y 02 para arrancar esta versión.
+
 ## Versiones informadas
 
 | Evidencia compartida | Servidor | Estado |

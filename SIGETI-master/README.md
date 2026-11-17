@@ -1,16 +1,16 @@
-# SIGETI · Copia candidata para el Sprint 1
+# SIGETI · Trabajo del equipo
 
-Implementación separada para revisar AUT-US-01, INV-US-02 y TIC-US-03 juntos. Conserva el acceso por RFC de AUT, adapta el modelo de equipos y completa el alta de tickets con el diseño visual del PHP. No es un merge aplicado a las ramas del equipo.
+Esta rama incluye la base del Sprint 1, el seguimiento de tickets de PBI-TIC-US-04 y la asignación automática de PBI-ASI-US-01. Para configurar el botón ▶, sigue [ARRANQUE_INTELLIJ.md](ARRANQUE_INTELLIJ.md). La guía distingue la preparación inicial de los pasos diarios después de cambiar código.
 
 ## Contenido
 
-Cuatro módulos Maven: entidad, persistencia, negocio y vista. Incluye sesión y permisos, consulta de equipos propios, formulario JSF/PrimeFaces, validación de resguardo dentro de la transacción, folio UUID único y estado Enviado. También contiene una base de demostración y un WAR precompilado.
+Cuatro módulos Maven: entidad, persistencia, negocio y vista. Incluye sesión y permisos, consulta de equipos propios, registro, seguimiento y asignación al soporte con menor carga activa. Cada equipo debe generar su WAR con Maven; las carpetas target no se versionan.
 
 ## 1. Tomcat y Java
 
 Descarga **64-bit Windows zip**, en **Binary Distributions → Core**, desde la [página oficial de Tomcat 10](https://tomcat.apache.org/download-10.cgi). Usa la serie **10.1**, no 10.0. Descomprime el ZIP; no hace falta instalarlo como servicio. La carpeta correcta contiene `bin`, `conf` y `lib`.
 
-La aplicación requiere **Java 21**. En esta computadora se verificó Java 21 en la carpeta `jbr` de IntelliJ IDEA 2025.3.2. El script intenta detectarla cuando JAVA_HOME no está configurado. Puedes indicarla mediante `-JavaHome` sin cambiar el Java global de Windows.
+Compila y ejecuta con **Java 21**. Configura ese JDK tanto en el proyecto como en Maven y Tomcat. Cada integrante usa la ruta de su instalación; no copies una ruta personal de otra computadora. El script intenta detectar el Java de IntelliJ si JAVA_HOME no está configurado.
 
 ## 2. Base de demostración
 
@@ -18,6 +18,10 @@ Con MySQL Server utiliza Workbench; con MariaDB de XAMPP puedes utilizar phpMyAd
 
 1. `sql/01_esquema_sprint1.sql`
 2. `sql/02_datos_demo.sql`
+3. `sql/03_asignacion_automatica.sql`
+4. `sql/04_tabla_seguimiento.sql`
+
+Si ya existe la base, **no repitas 01 ni 02**. Revisa si faltan la columna `ticket.rfc_tecnico` o la tabla `SEGUIMIENTO` y aplica respectivamente 03 o 04 una sola vez. La [guía de IntelliJ](ARRANQUE_INTELLIJ.md) incluye las consultas de comprobación. Hibernate valida el esquema al arrancar; no crea estas estructuras automáticamente.
 
 Crean **sigeti_sprint1**. Son scripts para una base nueva y vacía; no son una migración de datos existentes ni deben repetirse sobre tablas ya creadas. No utilices el instalador antiguo del PHP.
 
@@ -36,6 +40,8 @@ Dentro del cliente MySQL:
 ```sql
 SOURCE sql/01_esquema_sprint1.sql;
 SOURCE sql/02_datos_demo.sql;
+SOURCE sql/03_asignacion_automatica.sql;
+SOURCE sql/04_tabla_seguimiento.sql;
 EXIT;
 ```
 
@@ -46,7 +52,7 @@ La contraseña solicitada aquí es la de MySQL; es diferente de la de las cuenta
 Abre PowerShell en esta carpeta y sustituye la ruta del ejemplo por la carpeta real donde descomprimiste Tomcat:
 
 ```powershell
-.\iniciar-SIGETI.ps1 -TomcatHome "C:\Users\jkari\Downloads\apache-tomcat-10.1.61" -JavaHome "C:\Program Files\JetBrains\IntelliJ IDEA 2025.3.2\jbr" -Motor MySQL
+.\iniciar-SIGETI.ps1 -TomcatHome "RUTA_DE_TOMCAT" -JavaHome "RUTA_DE_JAVA_21" -Motor MySQL
 ```
 
 El script pide la contraseña de MySQL y arranca Tomcat en primer plano. Su usuario predeterminado es `root`; se cambia con `-DbUser`. Para otro puerto de MySQL indica `-DbUrl`, por ejemplo `jdbc:mysql://127.0.0.1:3307/sigeti_sprint1?serverTimezone=UTC`.
@@ -73,7 +79,7 @@ Todas las cuentas son ficticias. Contraseña común: **Sprint1Demo!**, almacenad
 | DEMO000004SSS | Soporte | Sin permiso para registrar tickets de usuario final |
 | DEMO000005DDD | Administrador | Sin permiso para registrar tickets de usuario final |
 
-Entra como A, consulta Mis equipos y registra un ticket. Debes recibir un folio con estado Enviado. Cierra sesión y entra como B para comprobar que sólo aparece su equipo. Con la cuenta sin equipos debe mostrarse el aviso y quedar bloqueado el registro. Las herramientas de atención y administración de sprints posteriores no están implementadas.
+Entra como A, consulta Mis equipos y registra un ticket. Debes recibir un folio con estado Enviado. Cierra sesión y entra como B para comprobar que sólo aparece su equipo. Con la cuenta sin equipos debe mostrarse el aviso y quedar bloqueado el registro. Consulta [PRUEBA_ASIGNACION.md](PRUEBA_ASIGNACION.md) para verificar el técnico asignado. El seguimiento permite registrar observaciones en tickets en atención; no implementa por sí solo el cambio de estado.
 
 Comprueba el guardado en phpMyAdmin:
 
@@ -91,7 +97,7 @@ En IntelliJ abre el **pom.xml de esta carpeta**, configura Java 21 para Maven y 
 mvn package
 ```
 
-Produce `vista/target/sigeti.war`. El paquete ya incluye un WAR construido con javac y las dependencias locales; no procede de una ejecución Maven exitosa. La descarga de dependencias de los complementos de Maven quedó bloqueada por los permisos de esta sesión. Antes de llevarlo al repositorio compartido valida también la construcción Maven normal.
+Produce `vista/target/sigeti.war`. Maven compila los cuatro módulos y ejecuta las pruebas de negocio sin necesitar MySQL. La primera compilación requiere acceso a los repositorios de dependencias. Ejecuta desde el POM raíz, no únicamente desde vista. La compilación y las cinco pruebas de asignación ya pasaron localmente; eso no sustituye probar el arranque, el registro y las consultas en MySQL.
 
 ## Procedencia y revisión
 

@@ -29,6 +29,20 @@ public class DelegateTicket {
         if (descripcionNormalizada.length() > 4000) {
             throw new IllegalArgumentException("La descripción admite hasta 4000 caracteres.");
         }
-        return new TicketDAO().registrar(rfc, numeroInventario, idTipo, descripcionNormalizada);
+        AsignadorTecnico asignador = new AsignadorTecnico();
+        // Entregamos el método al DAO para que lo ejecute durante el registro.
+        return new TicketDAO().registrar(rfc, numeroInventario, idTipo, descripcionNormalizada,
+                asignador::seleccionar);
+    }
+
+    public List<Ticket> obtenerTickets() {
+        return new TicketDAO().obtenerTodos();
+    }
+
+    public List<Ticket> obtenerTodosAdmin(String rfc) {
+        if (rfc == null || rfc.isBlank()) {
+            throw new IllegalArgumentException("No se pudo identificar al usuario autenticado.");
+        }
+        return new TicketDAO().obtenerTodosAdmin(rfc);
     }
 }

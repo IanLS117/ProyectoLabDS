@@ -74,6 +74,12 @@ public class AuthFilter implements Filter {
             return;
         }
 
+        if ("/tickets-admin.xhtml".equals(ruta)
+                && !usuario.tienePermiso("administrar_tickets")) {
+            respuesta.sendError(HttpServletResponse.SC_FORBIDDEN);
+            return;
+        }
+
         chain.doFilter(request, response);
     }
 }
