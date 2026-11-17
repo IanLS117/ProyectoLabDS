@@ -1,4 +1,5 @@
-CREATE DATABASE IF NOT EXISTS sigeti_sprint1 CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+DROP DATABASE IF EXISTS sigeti_sprint1;
+CREATE DATABASE sigeti_sprint1 CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE sigeti_sprint1;
 
 CREATE TABLE rol (
@@ -60,8 +61,10 @@ CREATE TABLE ticket (
     estatus VARCHAR(20) NOT NULL DEFAULT 'Enviado',
     prioridad VARCHAR(10) NOT NULL DEFAULT 'Media',
     fecha_hora_creacion DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    rfc_soporte VARCHAR(13) NULL,
     FOREIGN KEY (rfc_usuario_final) REFERENCES usuario_final(rfc_usuario),
     FOREIGN KEY (numero_inventario) REFERENCES equipo(numero_inventario),
     FOREIGN KEY (id_tipo_incidencia) REFERENCES tipo_incidencia(id_tipo_incidencia),
+    FOREIGN KEY (rfc_soporte) REFERENCES usuario(rfc),
     CHECK (estatus IN ('Enviado', 'En atención', 'Terminado'))
 ) ENGINE=InnoDB;

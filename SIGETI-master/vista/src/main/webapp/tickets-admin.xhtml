@@ -11,87 +11,109 @@
         <h:form id="formAdminTickets">
             <p:growl id="mensajes" showDetail="true" life="4000"/>
 
-            <div class="grid">
-                <div class="card">
-                    <h3>Total de tickets</h3>
-                    <p><strong><h:outputText value="#{ticketsAdminUI.totalTickets}"/></strong> registrados en el sistema</p>
-                </div>
-                <div class="card">
-                    <h3>Enviados</h3>
-                    <p><strong><h:outputText value="#{ticketsAdminUI.totalEnviados}"/></strong> pendientes de atención</p>
-                </div>
-                <div class="card">
-                    <h3>En atención</h3>
-                    <p><strong><h:outputText value="#{ticketsAdminUI.totalEnAtencion}"/></strong> en proceso técnico</p>
-                </div>
-                <div class="card">
-                    <h3>Resueltos / Cerrados</h3>
-                    <p><strong><h:outputText value="#{ticketsAdminUI.totalResueltos}"/></strong> finalizados</p>
-                </div>
-            </div>
-
-            <section class="panel section-space">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                    <h2>Listado general de incidencias</h2>
-                    <p:commandButton value="Actualizar listado"
-                                     icon="pi pi-refresh"
-                                     action="#{ticketsAdminUI.cargarTickets}"
-                                     update="formAdminTickets"
-                                     styleClass="secondary"/>
+            <p:outputPanel id="panelContenidoAdmin">
+                <div class="grid">
+                    <div class="card">
+                        <h3>Total de tickets</h3>
+                        <p><strong><h:outputText value="#{ticketsAdminUI.totalTickets}"/></strong> registrados en el sistema</p>
+                    </div>
+                    <div class="card">
+                        <h3>Enviados</h3>
+                        <p><strong><h:outputText value="#{ticketsAdminUI.totalEnviados}"/></strong> pendientes de atención</p>
+                    </div>
+                    <div class="card">
+                        <h3>En atención</h3>
+                        <p><strong><h:outputText value="#{ticketsAdminUI.totalEnAtencion}"/></strong> en proceso técnico</p>
+                    </div>
+                    <div class="card">
+                        <h3>Resueltos / Cerrados</h3>
+                        <p><strong><h:outputText value="#{ticketsAdminUI.totalResueltos}"/></strong> finalizados</p>
+                    </div>
                 </div>
 
-                <p:dataTable id="tablaTickets"
-                             var="t"
-                             value="#{ticketsAdminUI.tickets}"
-                             widgetVar="tablaTicketsWidget"
-                             filteredValue="#{ticketsAdminUI.ticketsFiltrados}"
-                             paginator="true"
-                             rows="10"
-                             paginatorPosition="bottom"
-                             emptyMessage="No se encontraron tickets registrados en el sistema.">
+                <section class="panel section-space">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <h2>Listado general de incidencias</h2>
+                        <p:commandButton value="Actualizar listado"
+                                         icon="pi pi-refresh"
+                                         action="#{ticketsAdminUI.cargarTickets}"
+                                         process="@this"
+                                         update="panelContenidoAdmin mensajes"
+                                         styleClass="secondary"/>
+                    </div>
 
-                    <f:facet name="header">
-                        <div style="display: flex; justify-content: flex-end;">
-                            <p:inputText id="globalFilter"
-                                         onkeyup="PF('tablaTicketsWidget').filter()"
-                                         placeholder="Buscar por folio, RFC, equipo o estado..."
-                                         style="width: 300px;"/>
-                        </div>
-                    </f:facet>
+                    <p:dataTable id="tablaTickets"
+                                 var="t"
+                                 value="#{ticketsAdminUI.tickets}"
+                                 widgetVar="tablaTicketsWidget"
+                                 filteredValue="#{ticketsAdminUI.ticketsFiltrados}"
+                                 paginator="true"
+                                 rows="10"
+                                 paginatorPosition="bottom"
+                                 emptyMessage="No se encontraron tickets registrados en el sistema.">
 
-                    <p:column headerText="Folio" sortBy="#{t.folio}" filterBy="#{t.folio}" filterMatchMode="contains">
-                        <h:outputText value="#{t.folio}"/>
-                    </p:column>
+                        <f:facet name="header">
+                            <div style="display: flex; justify-content: flex-end;">
+                                <p:inputText id="globalFilter"
+                                             onkeyup="PF('tablaTicketsWidget').filter()"
+                                             placeholder="Buscar por folio, RFC, equipo, soporte o estado..."
+                                             style="width: 340px;"/>
+                            </div>
+                        </f:facet>
 
-                    <p:column headerText="Solicitante (RFC)" sortBy="#{t.usuario.rfcUsuario}" filterBy="#{t.usuario.rfcUsuario}" filterMatchMode="contains">
-                        <h:outputText value="#{t.usuario.rfcUsuario}"/>
-                    </p:column>
+                        <p:column headerText="Folio" sortBy="#{t.folio}" filterBy="#{t.folio}" filterMatchMode="contains">
+                            <h:outputText value="#{t.folio}"/>
+                        </p:column>
 
-                    <p:column headerText="Equipo" sortBy="#{t.equipo.numeroInventario}" filterBy="#{t.equipo.numeroInventario}" filterMatchMode="contains">
-                        <h:outputText value="#{t.equipo.numeroInventario}"/>
-                    </p:column>
+                        <p:column headerText="Solicitante (RFC)" sortBy="#{t.usuario.rfcUsuario}" filterBy="#{t.usuario.rfcUsuario}" filterMatchMode="contains">
+                            <h:outputText value="#{t.usuario.rfcUsuario}"/>
+                        </p:column>
 
-                    <p:column headerText="Descripción del problema" filterBy="#{t.descripcion}" filterMatchMode="contains">
-                        <h:outputText value="#{t.descripcion}"/>
-                    </p:column>
+                        <p:column headerText="Equipo" sortBy="#{t.equipo.numeroInventario}" filterBy="#{t.equipo.numeroInventario}" filterMatchMode="contains">
+                            <h:outputText value="#{t.equipo.numeroInventario}"/>
+                        </p:column>
 
-                    <p:column headerText="Estado" sortBy="#{t.estado}" filterBy="#{t.estado}" filterMatchMode="contains">
-                        <h:outputText value="#{t.estado}"/>
-                    </p:column>
+                        <p:column headerText="Descripción del problema" filterBy="#{t.descripcion}" filterMatchMode="contains">
+                            <h:outputText value="#{t.descripcion}"/>
+                        </p:column>
 
-                    <p:column headerText="Fecha de registro" sortBy="#{t.fechaCreacion}">
-                        <h:outputText value="#{ticketsAdminUI.formatearFecha(t.fechaCreacion)}"/>
-                    </p:column>
+                        <p:column headerText="Soporte asignado"
+                                  sortBy="#{t.soporteAsignado != null ? t.soporteAsignado.nombre : 'Sin asignar'}"
+                                  filterBy="#{t.soporteAsignado != null ? t.soporteAsignado.nombre.concat(' ').concat(t.soporteAsignado.apellidos) : 'Sin asignar'}"
+                                  filterMatchMode="contains">
+                            <h:outputText value="#{t.soporteAsignado != null ? t.soporteAsignado.nombre.concat(' ').concat(t.soporteAsignado.apellidos) : 'Sin asignar'}"/>
+                        </p:column>
 
-                    <p:column headerText="Acciones" style="width: 130px; text-align: center;">
-                        <p:commandButton value="Ver detalle"
-                                         icon="pi pi-eye"
-                                         action="#{ticketsAdminUI.seleccionarTicket(t)}"
-                                         update=":formAdminTickets:dialogDetalle"
-                                         oncomplete="PF('dlgDetalleWidget').show()"/>
-                    </p:column>
-                </p:dataTable>
-            </section>
+                        <p:column headerText="Estado" sortBy="#{t.estado}" filterBy="#{t.estado}" filterMatchMode="contains">
+                            <h:outputText value="#{t.estado}"/>
+                        </p:column>
+
+                        <p:column headerText="Fecha de registro" sortBy="#{t.fechaCreacion}">
+                            <h:outputText value="#{ticketsAdminUI.formatearFecha(t.fechaCreacion)}"/>
+                        </p:column>
+
+                        <p:column headerText="Acciones" style="width: 240px; text-align: center;">
+                            <div style="display: flex; gap: 0.4rem; justify-content: center; flex-wrap: wrap;">
+                                <p:commandButton value="Detalle"
+                                                 icon="pi pi-eye"
+                                                 process="@this"
+                                                 action="#{ticketsAdminUI.seleccionarTicket(t)}"
+                                                 update=":formAdminTickets:dialogDetalle"
+                                                 oncomplete="PF('dlgDetalleWidget').show()"
+                                                 styleClass="secondary"/>
+
+                                <p:commandButton value="Reasignar"
+                                                 icon="pi pi-user-edit"
+                                                 process="@this"
+                                                 action="#{ticketsAdminUI.abrirModalReasignacion(t)}"
+                                                 disabled="#{t.estado eq 'Terminado'}"
+                                                 update=":formAdminTickets:dialogReasignar :formAdminTickets:mensajes"
+                                                 oncomplete="PF('dlgReasignarWidget').show()"/>
+                            </div>
+                        </p:column>
+                    </p:dataTable>
+                </section>
+            </p:outputPanel>
 
             <p:dialog id="dialogDetalle"
                       header="Detalle del Ticket"
@@ -107,6 +129,13 @@
                         <dt>Estado actual</dt>
                         <dd><h:outputText value="#{ticketsAdminUI.ticketSeleccionado.estado}"/></dd>
 
+                        <dt>Soporte asignado</dt>
+                        <dd>
+                            <h:outputText value="#{ticketsAdminUI.ticketSeleccionado.soporteAsignado != null
+                                ? ticketsAdminUI.ticketSeleccionado.soporteAsignado.nombre.concat(' ').concat(ticketsAdminUI.ticketSeleccionado.soporteAsignado.apellidos)
+                                : 'Sin asignar'}"/>
+                        </dd>
+
                         <dt>Fecha de creación</dt>
                         <dd><h:outputText value="#{ticketsAdminUI.formatearFecha(ticketsAdminUI.ticketSeleccionado.fechaCreacion)}"/></dd>
 
@@ -119,6 +148,63 @@
                         <dt>Descripción completa</dt>
                         <dd><h:outputText value="#{ticketsAdminUI.ticketSeleccionado.descripcion}"/></dd>
                     </dl>
+                </h:panelGroup>
+            </p:dialog>
+
+            <p:dialog id="dialogReasignar"
+                      header="Reasignar Ticket"
+                      widgetVar="dlgReasignarWidget"
+                      modal="true"
+                      resizable="false"
+                      width="520">
+                <h:panelGroup id="contenidoReasignar" rendered="#{not empty ticketsAdminUI.ticketAReasignar}">
+                    <dl class="account" style="margin-bottom: 1rem;">
+                        <dt>Folio del ticket</dt>
+                        <dd><h:outputText value="#{ticketsAdminUI.ticketAReasignar.folio}"/></dd>
+
+                        <dt>Técnico actual</dt>
+                        <dd>
+                            <h:outputText value="#{ticketsAdminUI.ticketAReasignar.soporteAsignado != null
+                                ? ticketsAdminUI.ticketAReasignar.soporteAsignado.nombre.concat(' ').concat(ticketsAdminUI.ticketAReasignar.soporteAsignado.apellidos)
+                                : 'Sin asignar'}"/>
+                        </dd>
+                    </dl>
+
+                    <div style="margin-bottom: 1.25rem;">
+                        <p:outputLabel for="selectSoporte"
+                                       value="Nuevo técnico de soporte (carga actual):"
+                                       style="display: block; font-weight: 600; margin-bottom: 0.4rem;"/>
+                        <p:selectOneMenu id="selectSoporte"
+                                         value="#{ticketsAdminUI.rfcNuevoSoporte}"
+                                         required="true"
+                                         requiredMessage="Seleccione un técnico de soporte."
+                                         style="width: 100%;">
+                            <f:selectItem itemLabel="-- Seleccione un soporte técnico --"
+                                          itemValue="#{null}"
+                                          noSelectionOption="true"/>
+                            <f:selectItems value="#{ticketsAdminUI.listaSoportes}"
+                                           var="sop"
+                                           itemValue="#{sop.rfc}"
+                                           itemLabel="#{sop.nombre} #{sop.apellidos} (#{ticketsAdminUI.obtenerCargaDeSoporte(sop.rfc)} tickets activos)"/>
+                        </p:selectOneMenu>
+                    </div>
+
+                    <div style="display: flex; justify-content: flex-end; gap: 0.5rem;">
+                        <p:commandButton value="Cancelar"
+                                         icon="pi pi-times"
+                                         immediate="true"
+                                         process="@this"
+                                         action="#{ticketsAdminUI.cerrarModalReasignacion}"
+                                         oncomplete="PF('dlgReasignarWidget').hide()"
+                                         styleClass="secondary"/>
+
+                        <p:commandButton value="Confirmar Reasignación"
+                                         icon="pi pi-check"
+                                         process="dialogReasignar"
+                                         action="#{ticketsAdminUI.confirmarReasignacion}"
+                                         update=":formAdminTickets:panelContenidoAdmin :formAdminTickets:mensajes :formAdminTickets:dialogReasignar"
+                                         oncomplete="if (!args.validationFailed) { if (#{not ticketsAdminUI.mostrarModalReasignacion}) PF('dlgReasignarWidget').hide(); }"/>
+                    </div>
                 </h:panelGroup>
             </p:dialog>
         </h:form>

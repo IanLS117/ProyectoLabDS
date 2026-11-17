@@ -4,8 +4,8 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
 import jakarta.persistence.LockModeType;
 import java.time.LocalDateTime;
-import java.util.Locale;
-import java.util.UUID;
+import java.util.*;
+
 import mx.desarrollo.entity.Equipo;
 import mx.desarrollo.entity.Ticket;
 import mx.desarrollo.entity.TipoIncidencia;
@@ -13,12 +13,13 @@ import mx.desarrollo.entity.Usuario;
 import mx.desarrollo.entity.UsuarioFinal;
 import mx.desarrollo.persistence.persistence.HibernateUtil;
 import jakarta.persistence.TypedQuery;
-import java.util.List;
+
+import static mx.desarrollo.persistence.persistence.HibernateUtil.getEntityManager;
 
 public class TicketDAO {
 
     public Ticket registrar(String rfc, String numeroInventario, Integer idTipo, String descripcion) {
-        EntityManager manager = HibernateUtil.getEntityManager();
+        EntityManager manager = getEntityManager();
         EntityTransaction transaccion = manager.getTransaction();
         try {
             transaccion.begin();
@@ -61,7 +62,7 @@ public class TicketDAO {
     }
 
     public List<Ticket> obtenerTodosAdmin(String rfc) {
-        EntityManager manager = HibernateUtil.getEntityManager();
+        EntityManager manager = getEntityManager();
         try {
             Usuario actor = manager.find(Usuario.class, rfc);
             if (actor == null || !actor.tienePermiso("administrar_tickets")) {
@@ -78,6 +79,87 @@ public class TicketDAO {
             return consulta.getResultList();
         } finally {
             manager.close();
+        }
+    }
+
+    public Map<String, Long> contarCargaActivaPorSoporte() {
+        EntityManager em = getEntityManager();
+        Map<String, Long> carga = new HashMap<>();
+        try {
+            List<Object[]> resultados = em.createQuery(
+                    "SELECT t.soporteAsignado.rfc, COUNT(t) " +
+                            "FROM Ticket t " +
+                            "WHERE t.soporteAsignado IS NOT NULL " +
+                            "AND t.estado <> 'Terminado' " +
+                            "GROUP BY t.soporteAsignado.rfc",
+                    Object[].class
+            ).getResultList();
+
+            for (Object[] fila : resultados) {
+                String rfcSoporte = (String) fila[0];
+                Long total = (Long) fila[1];
+                carga.put(rfcSoporte, total);
+            }
+            return carga;
+        } finally {
+            if (em != null && em.isOpen()) {
+                em.close();
+            }
+        }
+    }
+
+    public Ticket reasignarSoporte(String rfcAdmin, Integer idTicket, String rfcNuevoSoporte) {
+        EntityManager em = getEntityManager();
+        EntityTransaction tx = em.getTransaction();
+        try {
+            tx.begin();
+
+            Usuario actor = em.find(Usuario.class, rfcAdmin);
+            if (actor == null || !actor.tienePermiso("administrar_tickets")) {
+                throw new IllegalArgumentException("No tienes permiso para reasignar tickets.");
+            }
+
+            Ticket ticket = em.find(Ticket.class, idTicket);
+            if (ticket == null) {
+                throw new IllegalArgumentException("No se encontró el ticket con ID: " + idTicket);
+            }
+
+            if ("Terminado".equalsIgnoreCase(ticket.getEstado())) {
+                throw new IllegalStateException("No se puede reasignar un ticket que ya está terminado.");
+            }
+
+            if (ticket.getSoporteAsignado() != null
+                    && rfcNuevoSoporte.equals(ticket.getSoporteAsignado().getRfc())) {
+                throw new IllegalStateException("El ticket ya se encuentra asignado a este técnico de soporte.");
+            }
+
+            Usuario soporteManaged = em.find(Usuario.class, rfcNuevoSoporte);
+            if (soporteManaged == null) {
+                throw new IllegalArgumentException("No se encontró el técnico de soporte seleccionado.");
+            }
+
+            if (soporteManaged.getRol() == null || soporteManaged.getRol().getIdRol() != 2) {
+                throw new IllegalArgumentException("El usuario seleccionado no pertenece al área de soporte técnico.");
+            }
+
+            ticket.setSoporteAsignado(soporteManaged);
+
+            if ("Enviado".equalsIgnoreCase(ticket.getEstado())) {
+                ticket.setEstado("En atención");
+            }
+
+            Ticket actualizado = em.merge(ticket);
+            tx.commit();
+            return actualizado;
+        } catch (RuntimeException e) {
+            if (tx != null && tx.isActive()) {
+                tx.rollback();
+            }
+            throw e;
+        } finally {
+            if (em != null && em.isOpen()) {
+                em.close();
+            }
         }
     }
 }

@@ -1,10 +1,14 @@
 package mx.desarrollo.delegate;
 
 import java.util.List;
+import java.util.Map;
+
 import mx.desarrollo.entity.Ticket;
 import mx.desarrollo.entity.TipoIncidencia;
+import mx.desarrollo.entity.Usuario;
 import mx.desarrollo.persistence.dao.TicketDAO;
 import mx.desarrollo.persistence.dao.TipoIncidenciaDAO;
+import mx.desarrollo.persistence.integration.ServiceLocator;
 
 public class DelegateTicket {
 
@@ -37,5 +41,22 @@ public class DelegateTicket {
             throw new IllegalArgumentException("No se pudo identificar al usuario autenticado.");
         }
         return new TicketDAO().obtenerTodosAdmin(rfc);
+    }
+
+    public Map<String, Long> obtenerCargaTrabajoSoportes() {
+        TicketDAO ticketDAO = new TicketDAO();
+        return ticketDAO.contarCargaActivaPorSoporte();
+    }
+
+    public Ticket reasignarTicket(Integer idTicket, String rfcNuevoSoporte, Usuario administrador) {
+        if (idTicket == null || rfcNuevoSoporte == null || rfcNuevoSoporte.trim().isEmpty()) {
+            throw new IllegalArgumentException("Debe seleccionar un ticket y un técnico de soporte válido.");
+        }
+        if (administrador == null || administrador.getRfc() == null) {
+            throw new IllegalArgumentException("No se pudo identificar al administrador en sesión.");
+        }
+
+        TicketDAO ticketDAO = new TicketDAO();
+        return ticketDAO.reasignarSoporte(administrador.getRfc(), idTicket, rfcNuevoSoporte);
     }
 }

@@ -1,6 +1,7 @@
 package mx.desarrollo.persistence.dao;
 
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.TypedQuery;
 import mx.desarrollo.entity.Usuario;
 import mx.desarrollo.persistence.persistence.AbstractDAO;
 import mx.desarrollo.persistence.persistence.HibernateUtil;
@@ -40,5 +41,22 @@ public class UsuarioDAO extends AbstractDAO<Usuario> {
     @Override
     protected EntityManager getEntityManager() {
         return HibernateUtil.getEntityManager();
+    }
+
+    public List<Usuario> obtenerSoportesTecnicos() {
+        EntityManager em = getEntityManager();
+        try {
+            TypedQuery<Usuario> query = em.createQuery(
+                    "SELECT u FROM Usuario u " +
+                            "WHERE u.rol.idRol = 2 " +
+                            "ORDER BY u.nombre ASC, u.apellidos ASC",
+                    Usuario.class
+            );
+            return query.getResultList();
+        } finally {
+            if (em != null && em.isOpen()) {
+                em.close();
+            }
+        }
     }
 }

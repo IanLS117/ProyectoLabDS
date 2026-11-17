@@ -45,6 +45,10 @@ public class Ticket implements Serializable {
     @Column(name = "fecha_hora_creacion", nullable = false)
     private LocalDateTime fechaCreacion;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "rfc_soporte", referencedColumnName = "rfc")
+    private Usuario soporteAsignado;
+
     public Integer getIdTicket() { return idTicket; }
     public String getFolio() { return folio; }
     public void setFolio(String folio) { this.folio = folio; }
@@ -60,4 +64,6 @@ public class Ticket implements Serializable {
     public void setEstado(String estado) { this.estado = estado; }
     public LocalDateTime getFechaCreacion() { return fechaCreacion; }
     public void setFechaCreacion(LocalDateTime fechaCreacion) { this.fechaCreacion = fechaCreacion; }
+    public Usuario getSoporteAsignado() { return soporteAsignado; }
+    public void setSoporteAsignado(Usuario soporteAsignado) { this.soporteAsignado = soporteAsignado; }
 }
