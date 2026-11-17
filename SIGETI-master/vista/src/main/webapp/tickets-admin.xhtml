@@ -203,7 +203,7 @@
                                          process="dialogReasignar"
                                          action="#{ticketsAdminUI.confirmarReasignacion}"
                                          update=":formAdminTickets:panelContenidoAdmin :formAdminTickets:mensajes :formAdminTickets:dialogReasignar"
-                                         oncomplete="if (!args.validationFailed) { if (#{not ticketsAdminUI.mostrarModalReasignacion}) PF('dlgReasignarWidget').hide(); }"/>
+                                         oncomplete="if (!args.validationFailed) { if (#{not ticketsAdminUI.mostrarModalReasignacion}) PF('dlgReasignarWidget').hide(); }"/>|
                     </div>
                 </h:panelGroup>
             </p:dialog>
