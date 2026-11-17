@@ -67,6 +67,12 @@ public class AuthFilter implements Filter {
             return;
         }
 
+        if ("/mis-tickets.xhtml".equals(ruta)
+                && !usuario.tienePermiso("crear_ticket")) {
+            respuesta.sendError(HttpServletResponse.SC_FORBIDDEN);
+            return;
+        }
+
         if ("/nuevo-ticket.xhtml".equals(ruta)
                 && (!usuario.tienePermiso("crear_ticket")
                 || !usuario.tienePermiso("consultar_equipos"))) {

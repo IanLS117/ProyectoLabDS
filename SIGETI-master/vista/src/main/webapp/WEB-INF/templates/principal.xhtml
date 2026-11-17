@@ -13,6 +13,7 @@
             <h:link outcome="/index" value="Inicio"/>
             <h:link outcome="/mis-equipos" value="Mis equipos" rendered="#{loginUI.usuario.tienePermiso('consultar_equipos')}"/>
             <h:link outcome="/nuevo-ticket" value="Registrar ticket" rendered="#{loginUI.usuario.tienePermiso('crear_ticket')}"/>
+            <h:link outcome="/mis-tickets" value="Mis tickets" rendered="#{loginUI.usuario.tienePermiso('crear_ticket')}"/>
             <h:link outcome="/seguimientos" value="Seguimientos" rendered="#{loginUI.usuario.tienePermiso('atender_tickets')}"/>
             <h:link outcome="/tickets-admin" value="Administrar tickets" rendered="#{loginUI.usuario.tienePermiso('administrar_tickets')}"/>
         </nav>
