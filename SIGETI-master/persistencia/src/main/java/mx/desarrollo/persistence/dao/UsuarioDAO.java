@@ -16,6 +16,15 @@ public class UsuarioDAO extends AbstractDAO<Usuario> {
         return findAll();
     }
 
+    public List<Usuario> obtenerSoportesTecnicos() {
+        return execute(em -> em.createQuery(
+                "SELECT u FROM Usuario u "
+                        + "WHERE u.rol.idRol = 2 "
+                        + "ORDER BY u.nombre ASC, u.apellidos ASC",
+                Usuario.class
+        ).getResultList());
+    }
+
     public Usuario buscarPorRfc(String rfc) {
         return execute(em -> {
             String consulta =

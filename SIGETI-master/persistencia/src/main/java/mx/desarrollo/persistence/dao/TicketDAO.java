@@ -3,22 +3,23 @@ package mx.desarrollo.persistence.dao;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
 import jakarta.persistence.LockModeType;
+import jakarta.persistence.TypedQuery;
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.UUID;
+import java.util.function.Function;
+import java.util.function.Supplier;
 import mx.desarrollo.entity.Equipo;
+import mx.desarrollo.entity.Rol;
 import mx.desarrollo.entity.Ticket;
 import mx.desarrollo.entity.TipoIncidencia;
 import mx.desarrollo.entity.Usuario;
 import mx.desarrollo.entity.UsuarioFinal;
 import mx.desarrollo.persistence.persistence.HibernateUtil;
-import jakarta.persistence.TypedQuery;
-import java.util.List;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.function.Supplier;
-import mx.desarrollo.entity.Rol;
 
 public class TicketDAO {
 
@@ -32,8 +33,7 @@ public class TicketDAO {
         this.entityManagers = entityManagers;
     }
 
-    public Ticket registrar(String rfc, String numeroInventario, Integer idTipo, String descripcion,
-            Function<Map<Usuario, Long>, Usuario> seleccionarTecnico) {
+    public Ticket registrar(String rfc, String numeroInventario, Integer idTipo, String descripcion) {
         EntityManager manager = entityManagers.get();
         EntityTransaction transaccion = manager.getTransaction();
         try {
@@ -64,8 +64,11 @@ public class TicketDAO {
             ticket.setUsuario(solicitante);
 
             Map<Usuario, Long> cargas = contarTicketsActivosPorTecnico(manager);
-            Usuario tecnico = seleccionarTecnico.apply(cargas);
-            if (tecnico == null || !cargas.containsKey(tecnico)) {
+            Usuario tecnico = cargas.entrySet().stream()
+                    .min(Map.Entry.comparingByValue())
+                    .map(Map.Entry::getKey)
+                    .orElse(null);
+            if (tecnico == null) {
                 throw new IllegalArgumentException("No hay tecnicos disponibles para asignar el ticket.");
             }
             ticket.setTecnico(tecnico);
@@ -89,12 +92,12 @@ public class TicketDAO {
 
     public Map<Usuario, Long> contarTicketsActivosPorTecnico(EntityManager manager) {
         List<Usuario> tecnicos = manager.createQuery(
-                "SELECT u FROM Usuario u WHERE u.rol.idRol = 2 ORDER BY u.rfc", Usuario.class)
+                        "SELECT u FROM Usuario u WHERE u.rol.idRol = 2 ORDER BY u.rfc", Usuario.class)
                 .getResultList();
         Map<String, Long> totales = new LinkedHashMap<>();
         List<Object[]> resultados = manager.createQuery("SELECT t.tecnico.rfc, COUNT(t) FROM Ticket t "
-                + "WHERE t.estado IN (:estados) AND t.tecnico IS NOT NULL "
-                + "GROUP BY t.tecnico.rfc", Object[].class)
+                        + "WHERE t.estado IN (:estados) AND t.tecnico IS NOT NULL "
+                        + "GROUP BY t.tecnico.rfc", Object[].class)
                 .setParameter("estados", List.of("Enviado", "En atención"))
                 .getResultList();
         for (Object[] fila : resultados) {
@@ -107,6 +110,80 @@ public class TicketDAO {
             cargas.put(tecnico, totales.getOrDefault(tecnico.getRfc(), 0L));
         }
         return cargas;
+    }
+
+    public Map<String, Long> contarCargaActivaPorTecnico() {
+        EntityManager em = entityManagers.get();
+        Map<String, Long> carga = new HashMap<>();
+        try {
+            List<Object[]> resultados = em.createQuery(
+                    "SELECT t.tecnico.rfc, COUNT(t) FROM Ticket t "
+                            + "WHERE t.tecnico IS NOT NULL "
+                            + "AND t.estado <> 'Terminado' "
+                            + "GROUP BY t.tecnico.rfc",
+                    Object[].class
+            ).getResultList();
+
+            for (Object[] fila : resultados) {
+                carga.put((String) fila[0], (Long) fila[1]);
+            }
+            return carga;
+        } finally {
+            if (em != null && em.isOpen()) {
+                em.close();
+            }
+        }
+    }
+
+    public Ticket reasignarTecnico(String rfcAdmin, Integer idTicket, String rfcNuevoTecnico) {
+        EntityManager em = entityManagers.get();
+        EntityTransaction tx = em.getTransaction();
+        try {
+            tx.begin();
+
+            Usuario actor = em.find(Usuario.class, rfcAdmin);
+            if (actor == null || !actor.tienePermiso("administrar_tickets")) {
+                throw new IllegalArgumentException("No tienes permiso para reasignar tickets.");
+            }
+
+            Ticket ticket = em.find(Ticket.class, idTicket);
+            if (ticket == null) {
+                throw new IllegalArgumentException("No se encontró el ticket con ID: " + idTicket);
+            }
+
+            if ("Terminado".equalsIgnoreCase(ticket.getEstado())) {
+                throw new IllegalStateException("No se puede reasignar un ticket que ya está terminado.");
+            }
+
+            if (ticket.getTecnico() != null
+                    && rfcNuevoTecnico.equals(ticket.getTecnico().getRfc())) {
+                throw new IllegalStateException("El ticket ya se encuentra asignado a este técnico de soporte.");
+            }
+
+            Usuario tecnicoManaged = em.find(Usuario.class, rfcNuevoTecnico);
+            if (tecnicoManaged == null) {
+                throw new IllegalArgumentException("No se encontró el técnico de soporte seleccionado.");
+            }
+
+            if (tecnicoManaged.getRol() == null || tecnicoManaged.getRol().getIdRol() != 2) {
+                throw new IllegalArgumentException("El usuario seleccionado no pertenece al área de soporte técnico.");
+            }
+
+            ticket.setTecnico(tecnicoManaged);
+
+            Ticket actualizado = em.merge(ticket);
+            tx.commit();
+            return actualizado;
+        } catch (RuntimeException e) {
+            if (tx != null && tx.isActive()) {
+                tx.rollback();
+            }
+            throw e;
+        } finally {
+            if (em != null && em.isOpen()) {
+                em.close();
+            }
+        }
     }
 
     public List<Ticket> obtenerTodos() {
@@ -136,6 +213,7 @@ public class TicketDAO {
                             + "JOIN FETCH t.usuario "
                             + "JOIN FETCH t.equipo "
                             + "JOIN FETCH t.tipoIncidencia "
+                            + "LEFT JOIN FETCH t.tecnico "
                             + "ORDER BY t.fechaCreacion DESC",
                     Ticket.class
             );
@@ -159,11 +237,11 @@ public class TicketDAO {
                 throw new IllegalArgumentException("Tu cuenta no tiene un perfil de usuario final.");
             }
             return manager.createQuery(
-                    "SELECT t FROM Ticket t "
-                            + "JOIN FETCH t.equipo "
-                            + "JOIN FETCH t.tipoIncidencia "
-                            + "WHERE t.usuario.rfcUsuario = :rfc "
-                            + "ORDER BY t.fechaCreacion DESC, t.idTicket DESC", Ticket.class)
+                            "SELECT t FROM Ticket t "
+                                    + "JOIN FETCH t.equipo "
+                                    + "JOIN FETCH t.tipoIncidencia "
+                                    + "WHERE t.usuario.rfcUsuario = :rfc "
+                                    + "ORDER BY t.fechaCreacion DESC, t.idTicket DESC", Ticket.class)
                     .setParameter("rfc", rfc)
                     .getResultList();
         } finally {

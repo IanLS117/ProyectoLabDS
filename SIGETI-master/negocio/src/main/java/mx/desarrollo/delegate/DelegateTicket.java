@@ -1,8 +1,10 @@
 package mx.desarrollo.delegate;
 
 import java.util.List;
+import java.util.Map;
 import mx.desarrollo.entity.Ticket;
 import mx.desarrollo.entity.TipoIncidencia;
+import mx.desarrollo.entity.Usuario;
 import mx.desarrollo.persistence.dao.TicketDAO;
 import mx.desarrollo.persistence.dao.TipoIncidenciaDAO;
 
@@ -29,10 +31,7 @@ public class DelegateTicket {
         if (descripcionNormalizada.length() > 4000) {
             throw new IllegalArgumentException("La descripción admite hasta 4000 caracteres.");
         }
-        AsignadorTecnico asignador = new AsignadorTecnico();
-        // Entregamos el método al DAO para que lo ejecute durante el registro.
-        return new TicketDAO().registrar(rfc, numeroInventario, idTipo, descripcionNormalizada,
-                asignador::seleccionar);
+        return new TicketDAO().registrar(rfc, numeroInventario, idTipo, descripcionNormalizada);
     }
 
     public List<Ticket> obtenerTickets() {
@@ -51,5 +50,19 @@ public class DelegateTicket {
             throw new IllegalArgumentException("Inicia sesión para consultar tus tickets.");
         }
         return new TicketDAO().obtenerPorUsuario(rfc);
+    }
+
+    public Map<String, Long> obtenerCargaTrabajoSoportes() {
+        return new TicketDAO().contarCargaActivaPorTecnico();
+    }
+
+    public Ticket reasignarTicket(Integer idTicket, String rfcNuevoTecnico, Usuario administrador) {
+        if (idTicket == null || rfcNuevoTecnico == null || rfcNuevoTecnico.isBlank()) {
+            throw new IllegalArgumentException("Debe seleccionar un ticket y un técnico de soporte válido.");
+        }
+        if (administrador == null || administrador.getRfc() == null) {
+            throw new IllegalArgumentException("No se pudo identificar al administrador en sesión.");
+        }
+        return new TicketDAO().reasignarTecnico(administrador.getRfc(), idTicket, rfcNuevoTecnico);
     }
 }

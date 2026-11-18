@@ -1,5 +1,6 @@
 package mx.desarrollo.delegate;
 
+import java.util.List;
 import java.util.Locale;
 import mx.desarrollo.entity.Usuario;
 import mx.desarrollo.persistence.integration.ServiceLocator;
@@ -40,5 +41,9 @@ public class DelegateUsuario {
 
     public void saveUsario(Usuario usuario) {
         ServiceLocator.getInstanceUsuarioDAO().save(usuario);
+    }
+
+    public List<Usuario> listarSoportesTecnicos() {
+        return ServiceLocator.getInstanceUsuarioDAO().obtenerSoportesTecnicos();
     }
 }
