@@ -139,7 +139,8 @@ public class TicketsAdminBeanUI implements Serializable {
                         || "En atencion".equalsIgnoreCase(t.getEstado()))
                 .count();
         totalResueltos = tickets.stream()
-                .filter(t -> "Resuelto".equalsIgnoreCase(t.getEstado())
+                .filter(t -> "Terminado".equalsIgnoreCase(t.getEstado())
+                        || "Resuelto".equalsIgnoreCase(t.getEstado())
                         || "Cerrado".equalsIgnoreCase(t.getEstado()))
                 .count();
     }
