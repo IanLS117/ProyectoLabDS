@@ -1,12 +1,11 @@
-# ProyectoLabDS
+# SIGETI · PBI-TIC-US-03: Atención y cierre de tickets
 
-Para preparar SIGETI y trabajar desde IntelliJ, empieza por la
-[guía del botón ▶](SIGETI-master/ARRANQUE_INTELLIJ.md).
-Incluye Java, Maven, Tomcat, la base de datos y los pasos después de cambiar código.
+Permite que soporte atienda los tickets que tiene asignados, registre avances y los termine explicando la solución aplicada.
 
-## Avances disponibles
+El ticket pasa de **Enviado** a **En atención** y después a **Terminado**. Si falta la solución, aparece una notificación y el ticket permanece abierto. El historial conserva las observaciones y la solución final.
 
-- **PBI-TIC-US-02 · Mis tickets:** cada usuario consulta sus incidencias y su estado. [Guía de prueba](SIGETI-master/PRUEBA_MIS_TICKETS.md).
-- **PBI-TIC-US-03 · Atención y cierre:** soporte inicia la atención, registra avances y termina el ticket con una solución. [Guía de prueba](SIGETI-master/PRUEBA_ATENCION_TICKETS.md).
+Se comprobó el cambio de estado, el guardado de observaciones y solución, el aviso de cierre rechazado y el resultado visible para el usuario y el administrador.
 
-La rama `PBI-TIC-US-03` parte de `PBI-TIC-US-02` e incluye ambos avances. Para probarlos juntos basta descargar la 03. Cada integrante configura sus propias rutas y credenciales según la guía de arranque.
+Esta rama **ya incluye PBI-TIC-US-02: Mis tickets** y la base compartida. Para probar ambos avances basta utilizar esta rama.
+
+[Cómo abrir el proyecto](SIGETI-master/ARRANQUE_INTELLIJ.md) · [Cómo probar la atención y el cierre](SIGETI-master/PRUEBA_ATENCION_TICKETS.md).
