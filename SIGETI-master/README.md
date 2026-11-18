@@ -1,10 +1,19 @@
 # SIGETI · Trabajo del equipo
 
-Esta rama incluye la base del Sprint 1, el seguimiento de tickets de PBI-TIC-US-04 y la asignación automática de PBI-ASI-US-01. Para configurar el botón ▶, sigue [ARRANQUE_INTELLIJ.md](ARRANQUE_INTELLIJ.md). La guía distingue la preparación inicial de los pasos diarios después de cambiar código.
+Esta rama incluye la base compartida del equipo y los avances PBI-TIC-US-02 y PBI-TIC-US-03: consulta de tickets propios, atención y cierre con solución. Conserva el seguimiento, la asignación automática y la consulta del administrador ya incorporados. Para configurar el botón ▶, sigue [ARRANQUE_INTELLIJ.md](ARRANQUE_INTELLIJ.md).
 
 ## Contenido
 
-Cuatro módulos Maven: entidad, persistencia, negocio y vista. Incluye sesión y permisos, consulta de equipos propios, registro, seguimiento y asignación al soporte con menor carga activa. Cada equipo debe generar su WAR con Maven; las carpetas target no se versionan.
+Cuatro módulos Maven: entidad, persistencia, negocio y vista. Incluye sesión y permisos, equipos propios, registro de tickets, asignación automática, Mis tickets, observaciones, cierre con solución y consulta administrativa. Cada integrante genera su WAR con Maven; las carpetas target no se versionan.
+
+## Probar los avances 02 y 03
+
+`PBI-TIC-US-03` parte del commit guardado de `PBI-TIC-US-02` e incluye ambas funciones. Para probar el avance completo, descarga la rama 03 y abre `SIGETI-master/pom.xml` como proyecto Maven. No hace falta combinar manualmente las dos ramas ni copiar archivos entre carpetas.
+
+- [Mis tickets: comportamiento y pruebas](PRUEBA_MIS_TICKETS.md).
+- [Atención y cierre: comportamiento y pruebas](PRUEBA_ATENCION_TICKETS.md).
+
+Usa Java 21 y las rutas, puerto y credenciales de tu computadora. Al actualizar una base existente, comprueba únicamente las estructuras pendientes indicadas abajo. Los PBI 02 y 03 no requieren otro script SQL aparte de la base compartida. Los tickets antiguos sin técnico asignado no se reasignan automáticamente; la asignación de los nuevos permite probar la atención.
 
 ## 1. Tomcat y Java
 
@@ -79,7 +88,9 @@ Todas las cuentas son ficticias. Contraseña común: **Sprint1Demo!**, almacenad
 | DEMO000004SSS | Soporte | Sin permiso para registrar tickets de usuario final |
 | DEMO000005DDD | Administrador | Sin permiso para registrar tickets de usuario final |
 
-Entra como A, consulta Mis equipos y registra un ticket. Debes recibir un folio con estado Enviado. Cierra sesión y entra como B para comprobar que sólo aparece su equipo. Con la cuenta sin equipos debe mostrarse el aviso y quedar bloqueado el registro. Consulta [PRUEBA_ASIGNACION.md](PRUEBA_ASIGNACION.md) para verificar el técnico asignado. El seguimiento permite registrar observaciones en tickets en atención; no implementa por sí solo el cambio de estado.
+Entra como A, consulta Mis equipos y registra un ticket. Debes recibir un folio con estado Enviado. En Mis tickets deben aparecer únicamente sus incidencias. Cierra sesión y entra como B para comprobar la separación de equipos y tickets. Con la cuenta sin equipos debe mostrarse el aviso y quedar bloqueado el registro. Consulta [PRUEBA_ASIGNACION.md](PRUEBA_ASIGNACION.md) para verificar el técnico asignado.
+
+Como soporte, abre Seguimientos, selecciona un ticket asignado e inicia la atención. Puedes guardar observaciones mientras esté En atención. Para terminarlo debes escribir la solución final; si falta, se muestra un aviso flotante y no se cierra. El historial conserva la observación y distingue la solución final. El usuario ve Terminado en Mis tickets y el administrador lo cuenta en Finalizados. Las guías de cada PBI detallan las comprobaciones.
 
 Comprueba el guardado en phpMyAdmin:
 
@@ -97,10 +108,10 @@ En IntelliJ abre el **pom.xml de esta carpeta**, configura Java 21 para Maven y 
 mvn package
 ```
 
-Produce `vista/target/sigeti.war`. Maven compila los cuatro módulos y ejecuta las pruebas de negocio sin necesitar MySQL. La primera compilación requiere acceso a los repositorios de dependencias. Ejecuta desde el POM raíz, no únicamente desde vista. La compilación y las cinco pruebas de asignación ya pasaron localmente; eso no sustituye probar el arranque, el registro y las consultas en MySQL.
+Produce `vista/target/sigeti.war`. Maven compila los cuatro módulos y ejecuta las pruebas automáticas sin necesitar tu MySQL. La primera compilación requiere Internet para descargar dependencias. Ejecuta desde el POM padre, no únicamente desde vista. Pasaron 60 pruebas de asignación, consulta y atención, incluidas comprobaciones con una base temporal en memoria. En el entorno local también se probó el flujo de registro, atención, observación, rechazo de cierre vacío, solución final y consulta del estado. Cada integrante debe comprobar su conexión y arranque con su configuración.
 
 ## Procedencia y revisión
 
 La autenticación procede de AUT `9295554`. El modelo de equipo utiliza la clave textual de inventario del SQL PHP y añade la relación de resguardo ausente. La consulta sigue el filtrado por RFC de INV `298f7b2`. El alta conserva la intención de TIC `d0ac71e` corrigiendo sus incompatibilidades, sin copiar su login ni sus POM.
 
-Esta base es un modelo mínimo del Sprint 1, no una migración automática del proyecto anterior. Lee `VALIDACION.md` para distinguir lo probado del flujo de navegador pendiente. Después de probarlo y revisarlo con el equipo se puede trasladar la propuesta a una rama de integración autorizada. No se han creado commits, merges ni pushes.
+La base del Sprint 2 conserva los avances revisados de ASI-US-01, TIC-US-04 y TIC-US-05. Sus contenidos se incorporaron al commit de base compartida; ese paso no sustituyó el historial original de las ramas de los compañeros. Los PBI 02 y 03 agregan los cambios descritos arriba y sus guías de prueba. `VALIDACION.md` conserva la evidencia histórica del Sprint 1.

@@ -45,4 +45,11 @@ public class DelegateTicket {
         }
         return new TicketDAO().obtenerTodosAdmin(rfc);
     }
+
+    public List<Ticket> obtenerMisTickets(String rfc) {
+        if (rfc == null || rfc.isBlank()) {
+            throw new IllegalArgumentException("Inicia sesión para consultar tus tickets.");
+        }
+        return new TicketDAO().obtenerPorUsuario(rfc);
+    }
 }

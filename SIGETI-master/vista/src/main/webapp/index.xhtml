@@ -19,6 +19,10 @@
                 <h2>Registrar ticket</h2><p>Selecciona tu equipo y describe la incidencia.</p>
                 <h:link outcome="/nuevo-ticket" value="Registrar una incidencia" styleClass="button"/>
             </h:panelGroup>
+            <h:panelGroup layout="block" styleClass="card" rendered="#{loginUI.usuario.tienePermiso('crear_ticket')}">
+                <h2>Mis tickets</h2><p>Consulta tus incidencias registradas y su estado actual.</p>
+                <h:link outcome="/mis-tickets" value="Consultar mis tickets" styleClass="button"/>
+            </h:panelGroup>
             <h:panelGroup layout="block" styleClass="card" rendered="#{loginUI.usuario.tienePermiso('atender_tickets')}">
                 <h2>Seguimiento de tickets</h2>
                 <p>Documenta observaciones y avances durante la atención de incidencias.</p>

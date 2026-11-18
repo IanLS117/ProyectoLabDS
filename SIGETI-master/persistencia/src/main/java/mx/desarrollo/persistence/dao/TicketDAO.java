@@ -17,13 +17,24 @@ import java.util.List;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import mx.desarrollo.entity.Rol;
 
 public class TicketDAO {
 
+    private final Supplier<EntityManager> entityManagers;
+
+    public TicketDAO() {
+        this(HibernateUtil::getEntityManager);
+    }
+
+    TicketDAO(Supplier<EntityManager> entityManagers) {
+        this.entityManagers = entityManagers;
+    }
+
     public Ticket registrar(String rfc, String numeroInventario, Integer idTipo, String descripcion,
             Function<Map<Usuario, Long>, Usuario> seleccionarTecnico) {
-        EntityManager manager = HibernateUtil.getEntityManager();
+        EntityManager manager = entityManagers.get();
         EntityTransaction transaccion = manager.getTransaction();
         try {
             transaccion.begin();
@@ -99,7 +110,7 @@ public class TicketDAO {
     }
 
     public List<Ticket> obtenerTodos() {
-        EntityManager em = HibernateUtil.getEntityManager();
+        EntityManager em = entityManagers.get();
         try {
             TypedQuery<Ticket> query = em.createQuery(
                     "SELECT t FROM Ticket t JOIN FETCH t.equipo ORDER BY t.fechaCreacion DESC",
@@ -114,7 +125,7 @@ public class TicketDAO {
     }
 
     public List<Ticket> obtenerTodosAdmin(String rfc) {
-        EntityManager manager = HibernateUtil.getEntityManager();
+        EntityManager manager = entityManagers.get();
         try {
             Usuario actor = manager.find(Usuario.class, rfc);
             if (actor == null || !actor.tienePermiso("administrar_tickets")) {
@@ -129,6 +140,32 @@ public class TicketDAO {
                     Ticket.class
             );
             return consulta.getResultList();
+        } finally {
+            manager.close();
+        }
+    }
+
+    public List<Ticket> obtenerPorUsuario(String rfc) {
+        if (rfc == null || rfc.isBlank()) {
+            throw new IllegalArgumentException("Inicia sesión para consultar tus tickets.");
+        }
+        EntityManager manager = entityManagers.get();
+        try {
+            Usuario actor = manager.find(Usuario.class, rfc);
+            if (actor == null || !actor.tienePermiso("crear_ticket")) {
+                throw new IllegalArgumentException("No tienes permiso para consultar tickets de usuario final.");
+            }
+            if (manager.find(UsuarioFinal.class, rfc) == null) {
+                throw new IllegalArgumentException("Tu cuenta no tiene un perfil de usuario final.");
+            }
+            return manager.createQuery(
+                    "SELECT t FROM Ticket t "
+                            + "JOIN FETCH t.equipo "
+                            + "JOIN FETCH t.tipoIncidencia "
+                            + "WHERE t.usuario.rfcUsuario = :rfc "
+                            + "ORDER BY t.fechaCreacion DESC, t.idTicket DESC", Ticket.class)
+                    .setParameter("rfc", rfc)
+                    .getResultList();
         } finally {
             manager.close();
         }

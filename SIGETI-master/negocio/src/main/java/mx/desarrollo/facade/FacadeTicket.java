@@ -22,4 +22,8 @@ public class FacadeTicket {
     public List<Ticket> obtenerTodosAdmin(String rfc) {
         return new DelegateTicket().obtenerTodosAdmin(rfc);
     }
+
+    public List<Ticket> obtenerMisTickets(String rfc) {
+        return new DelegateTicket().obtenerMisTickets(rfc);
+    }
 }
