@@ -43,6 +43,10 @@ public class TicketsAdminBeanUI implements Serializable {
     private Map<String, Long> cargaPorSoporte = new HashMap<>();
     private boolean mostrarModalReasignacion;
 
+    // --- Cambio de prioridad ---
+    private Ticket ticketPrioridad;
+    private String nuevaPrioridad;
+
     @PostConstruct
     public void init() {
         cargarTickets();
@@ -122,6 +126,34 @@ public class TicketsAdminBeanUI implements Serializable {
         }
     }
 
+    public void abrirModalPrioridad(Ticket ticket) {
+        this.ticketPrioridad = ticket;
+        this.nuevaPrioridad = ticket != null ? ticket.getPrioridad() : "Media";
+    }
+
+    public void confirmarCambioPrioridad() {
+        FacesContext context = FacesContext.getCurrentInstance();
+        try {
+            Usuario adminActual = obtenerUsuarioSesion();
+            if (adminActual == null || ticketPrioridad == null) {
+                throw new IllegalStateException("No hay un ticket seleccionado.");
+            }
+            delegateTicket.cambiarPrioridadTicket(ticketPrioridad.getIdTicket(), nuevaPrioridad, adminActual);
+            cargarTickets();
+            context.addMessage(null, new FacesMessage(
+                    FacesMessage.SEVERITY_INFO,
+                    "Prioridad actualizada",
+                    "El cambio quedó registrado en la bitácora."
+            ));
+        } catch (Exception ex) {
+            context.addMessage(null, new FacesMessage(
+                    FacesMessage.SEVERITY_ERROR,
+                    "No se pudo cambiar la prioridad",
+                    ex.getMessage()
+            ));
+        }
+    }
+
     public long obtenerCargaDeSoporte(String rfcSoporte) {
         if (cargaPorSoporte == null || rfcSoporte == null) {
             return 0L;
@@ -192,4 +224,11 @@ public class TicketsAdminBeanUI implements Serializable {
     public Map<String, Long> getCargaPorSoporte() { return cargaPorSoporte; }
 
     public boolean isMostrarModalReasignacion() { return mostrarModalReasignacion; }
+
+    public Ticket getTicketPrioridad() { return ticketPrioridad; }
+
+    public String getNuevaPrioridad() { return nuevaPrioridad; }
+
+    public void setNuevaPrioridad(String nuevaPrioridad) { this.nuevaPrioridad = nuevaPrioridad; }
+
 }

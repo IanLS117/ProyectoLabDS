@@ -46,6 +46,9 @@ public class Ticket implements Serializable {
     @Column(name = "estatus", nullable = false, length = 20)
     private String estado;
 
+    @Column(name = "prioridad", nullable = false, length = 10, columnDefinition = "VARCHAR(10) DEFAULT 'Media'")
+    private String prioridad = "Media";
+
     @Column(name = "fecha_hora_creacion", nullable = false)
     private LocalDateTime fechaCreacion;
 
@@ -64,6 +67,8 @@ public class Ticket implements Serializable {
     public void setDescripcion(String descripcion) { this.descripcion = descripcion; }
     public String getEstado() { return estado; }
     public void setEstado(String estado) { this.estado = estado; }
+    public String getPrioridad() { return prioridad; }
+    public void setPrioridad(String prioridad) { this.prioridad = prioridad; }
     public LocalDateTime getFechaCreacion() { return fechaCreacion; }
     public void setFechaCreacion(LocalDateTime fechaCreacion) { this.fechaCreacion = fechaCreacion; }
 }

@@ -2,13 +2,18 @@ package mx.desarrollo.delegate;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import mx.desarrollo.entity.BitacoraTicket;
 import mx.desarrollo.entity.Ticket;
 import mx.desarrollo.entity.TipoIncidencia;
 import mx.desarrollo.entity.Usuario;
+import mx.desarrollo.persistence.dao.BitacoraTicketDAO;
 import mx.desarrollo.persistence.dao.TicketDAO;
 import mx.desarrollo.persistence.dao.TipoIncidenciaDAO;
 
 public class DelegateTicket {
+
+    private static final Set<String> PRIORIDADES_VALIDAS = Set.of("Baja", "Media", "Alta", "Urgente");
 
     public List<TipoIncidencia> obtenerTipos() {
         return new TipoIncidenciaDAO().obtenerActivos();
@@ -64,5 +69,29 @@ public class DelegateTicket {
             throw new IllegalArgumentException("No se pudo identificar al administrador en sesión.");
         }
         return new TicketDAO().reasignarTecnico(administrador.getRfc(), idTicket, rfcNuevoTecnico);
+    }
+
+    public Ticket cambiarPrioridadTicket(Integer idTicket, String nuevaPrioridad, Usuario administrador) {
+        if (idTicket == null || nuevaPrioridad == null || !PRIORIDADES_VALIDAS.contains(nuevaPrioridad)) {
+            throw new IllegalArgumentException("Seleccione una prioridad válida (Baja, Media, Alta o Urgente).");
+        }
+        if (administrador == null || administrador.getRfc() == null) {
+            throw new IllegalArgumentException("No se pudo identificar al administrador en sesión.");
+        }
+        return new BitacoraTicketDAO().cambiarPrioridad(administrador.getRfc(), idTicket, nuevaPrioridad);
+    }
+
+    public List<BitacoraTicket> obtenerBitacoraGeneral(String rfcAdmin) {
+        if (rfcAdmin == null || rfcAdmin.isBlank()) {
+            throw new IllegalArgumentException("No se pudo identificar al administrador en sesión.");
+        }
+        return new BitacoraTicketDAO().obtenerBitacoraGeneral(rfcAdmin);
+    }
+
+    public List<BitacoraTicket> obtenerBitacoraTicket(String rfcAdmin, Integer idTicket) {
+        if (rfcAdmin == null || rfcAdmin.isBlank() || idTicket == null) {
+            throw new IllegalArgumentException("Debe seleccionar un ticket válido.");
+        }
+        return new BitacoraTicketDAO().obtenerBitacoraPorTicket(rfcAdmin, idTicket);
     }
 }

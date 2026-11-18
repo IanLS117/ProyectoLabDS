@@ -28,10 +28,10 @@ public class AtencionTicketDAO {
 
     public List<Ticket> listarAsignados(String rfc) {
         return ejecutar(rfc, manager -> manager.createQuery(
-                "SELECT t FROM Ticket t JOIN FETCH t.equipo "
-                        + "JOIN FETCH t.tipoIncidencia JOIN FETCH t.tecnico "
-                        + "WHERE t.tecnico.rfc = :rfc "
-                        + "ORDER BY t.fechaCreacion DESC, t.idTicket DESC", Ticket.class)
+                        "SELECT t FROM Ticket t JOIN FETCH t.equipo "
+                                + "JOIN FETCH t.tipoIncidencia JOIN FETCH t.tecnico "
+                                + "WHERE t.tecnico.rfc = :rfc "
+                                + "ORDER BY t.fechaCreacion DESC, t.idTicket DESC", Ticket.class)
                 .setParameter("rfc", rfc).getResultList());
     }
 
@@ -46,32 +46,38 @@ public class AtencionTicketDAO {
         return ejecutar(rfc, manager -> {
             ticketAsignado(manager, rfc, idTicket, false);
             return manager.createQuery(
-                    "SELECT s FROM Seguimiento s WHERE s.id.idTicket = :id "
-                            + "ORDER BY s.id.numeroSeguimiento", Seguimiento.class)
+                            "SELECT s FROM Seguimiento s WHERE s.id.idTicket = :id "
+                                    + "ORDER BY s.id.numeroSeguimiento", Seguimiento.class)
                     .setParameter("id", idTicket).getResultList();
         });
     }
 
     public Ticket cambiarEstado(String rfc, Integer idTicket, String estadoEsperado,
-            String nuevoEstado, String solucion) {
+                                String nuevoEstado, String solucion) {
         return ejecutar(rfc, manager -> {
             Ticket ticket = ticketAsignado(manager, rfc, idTicket, true);
+            Usuario actor = manager.find(Usuario.class, rfc);
+
             if (!Objects.equals(ticket.getEstado(), estadoEsperado)) {
                 throw new IllegalArgumentException("El estado del ticket cambió. Actualiza el listado y vuelve a seleccionarlo.");
             }
             if ("Enviado".equals(ticket.getEstado()) && "En atención".equals(nuevoEstado)) {
                 ticket.setEstado("En atención");
+                BitacoraTicketDAO.registrarEvento(manager, ticket, actor, "ESTADO",
+                        "Enviado", "En atención", "El técnico inició la atención del ticket");
             } else if ("En atención".equals(ticket.getEstado()) && "Terminado".equals(nuevoEstado)) {
                 String texto = validarTexto(solucion, "La solución es obligatoria para terminar el ticket.");
                 Long soluciones = manager.createQuery(
-                        "SELECT COUNT(s) FROM Seguimiento s WHERE s.id.idTicket = :id "
-                                + "AND s.esSolucionFinal = true", Long.class)
+                                "SELECT COUNT(s) FROM Seguimiento s WHERE s.id.idTicket = :id "
+                                        + "AND s.esSolucionFinal = true", Long.class)
                         .setParameter("id", idTicket).getSingleResult();
                 if (soluciones > 0) {
                     throw new IllegalArgumentException("El ticket ya tiene una solución final registrada.");
                 }
                 registrarSeguimiento(manager, ticket, texto, true);
                 ticket.setEstado("Terminado");
+                BitacoraTicketDAO.registrarEvento(manager, ticket, actor, "ESTADO",
+                        "En atención", "Terminado", "Ticket cerrado con solución final");
             } else {
                 throw new IllegalArgumentException("Solo puedes avanzar de Enviado a En atención y de En atención a Terminado.");
             }
@@ -106,16 +112,16 @@ public class AtencionTicketDAO {
 
     private Ticket detalle(EntityManager manager, Integer idTicket) {
         return manager.createQuery(
-                "SELECT t FROM Ticket t JOIN FETCH t.equipo "
-                        + "JOIN FETCH t.tipoIncidencia JOIN FETCH t.tecnico "
-                        + "WHERE t.idTicket = :id", Ticket.class)
+                        "SELECT t FROM Ticket t JOIN FETCH t.equipo "
+                                + "JOIN FETCH t.tipoIncidencia JOIN FETCH t.tecnico "
+                                + "WHERE t.idTicket = :id", Ticket.class)
                 .setParameter("id", idTicket).getSingleResult();
     }
 
     private void registrarSeguimiento(EntityManager manager, Ticket ticket, String texto, boolean solucionFinal) {
         Integer siguiente = manager.createQuery(
-                "SELECT COALESCE(MAX(s.id.numeroSeguimiento), 0) + 1 FROM Seguimiento s "
-                        + "WHERE s.id.idTicket = :id", Integer.class)
+                        "SELECT COALESCE(MAX(s.id.numeroSeguimiento), 0) + 1 FROM Seguimiento s "
+                                + "WHERE s.id.idTicket = :id", Integer.class)
                 .setParameter("id", ticket.getIdTicket()).getSingleResult();
         Seguimiento seguimiento = new Seguimiento();
         seguimiento.setId(new SeguimientoId(ticket.getIdTicket(), siguiente));

@@ -16,6 +16,7 @@
             <h:link outcome="/mis-tickets" value="Mis tickets" rendered="#{loginUI.usuario.tienePermiso('crear_ticket')}"/>
             <h:link outcome="/seguimientos" value="Seguimientos" rendered="#{loginUI.usuario.tienePermiso('atender_tickets')}"/>
             <h:link outcome="/tickets-admin" value="Administrar tickets" rendered="#{loginUI.usuario.tienePermiso('administrar_tickets')}"/>
+            <h:link outcome="/bitacora-tickets" value="Bitácora" rendered="#{loginUI.usuario.tienePermiso('administrar_tickets')}"/>
         </nav>
         <h:form id="salir">
             <p:commandButton value="Cerrar sesión" action="#{loginUI.cerrarSesion}" ajax="false" styleClass="secondary"/>

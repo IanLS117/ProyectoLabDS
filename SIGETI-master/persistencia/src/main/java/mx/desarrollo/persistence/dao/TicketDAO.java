@@ -34,6 +34,14 @@ public class TicketDAO {
     }
 
     public Ticket registrar(String rfc, String numeroInventario, Integer idTipo, String descripcion) {
+        return registrar(rfc, numeroInventario, idTipo, descripcion, cargas ->
+                cargas.entrySet().stream()
+                        .min(Map.Entry.comparingByValue())
+                        .map(Map.Entry::getKey)
+                        .orElse(null));
+    }
+
+    public Ticket registrar(String rfc, String numeroInventario, Integer idTipo, String descripcion, java.util.function.Function<java.util.Map<Usuario, Long>, Usuario> seleccionarTecnico) {
         EntityManager manager = entityManagers.get();
         EntityTransaction transaccion = manager.getTransaction();
         try {
@@ -64,11 +72,8 @@ public class TicketDAO {
             ticket.setUsuario(solicitante);
 
             Map<Usuario, Long> cargas = contarTicketsActivosPorTecnico(manager);
-            Usuario tecnico = cargas.entrySet().stream()
-                    .min(Map.Entry.comparingByValue())
-                    .map(Map.Entry::getKey)
-                    .orElse(null);
-            if (tecnico == null) {
+            Usuario tecnico = seleccionarTecnico.apply(cargas);
+            if (tecnico == null || !cargas.containsKey(tecnico)) {
                 throw new IllegalArgumentException("No hay tecnicos disponibles para asignar el ticket.");
             }
             ticket.setTecnico(tecnico);
@@ -76,8 +81,18 @@ public class TicketDAO {
             ticket.setTipoIncidencia(tipo);
             ticket.setDescripcion(descripcion);
             ticket.setEstado("Enviado");
+            ticket.setPrioridad("Media");
             ticket.setFechaCreacion(LocalDateTime.now());
             manager.persist(ticket);
+            manager.flush();
+
+            BitacoraTicketDAO.registrarEvento(manager, ticket, actor, "CREACION",
+                    "Sin registro", "Estado: Enviado | Prioridad: Media",
+                    "Ticket creado por solicitante");
+            BitacoraTicketDAO.registrarEvento(manager, ticket, actor, "ASIGNACION",
+                    "Sin asignar", formatearTecnico(tecnico),
+                    "Asignación automática al registrar ticket");
+
             transaccion.commit();
             return ticket;
         } catch (RuntimeException error) {
@@ -169,9 +184,17 @@ public class TicketDAO {
                 throw new IllegalArgumentException("El usuario seleccionado no pertenece al área de soporte técnico.");
             }
 
-            ticket.setTecnico(tecnicoManaged);
+            String tecnicoAnterior = ticket.getTecnico() != null
+                    ? formatearTecnico(ticket.getTecnico())
+                    : "Sin asignar";
 
+            ticket.setTecnico(tecnicoManaged);
             Ticket actualizado = em.merge(ticket);
+
+            BitacoraTicketDAO.registrarEvento(em, actualizado, actor, "ASIGNACION",
+                    tecnicoAnterior, formatearTecnico(tecnicoManaged),
+                    "Reasignación manual por administrador");
+
             tx.commit();
             return actualizado;
         } catch (RuntimeException e) {
@@ -184,6 +207,10 @@ public class TicketDAO {
                 em.close();
             }
         }
+    }
+
+    private String formatearTecnico(Usuario u) {
+        return u.getNombre() + " " + u.getApellidos() + " (" + u.getRfc() + ")";
     }
 
     public List<Ticket> obtenerTodos() {

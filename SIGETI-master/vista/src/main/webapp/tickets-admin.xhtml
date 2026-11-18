@@ -84,6 +84,10 @@
                             <h:outputText value="#{t.tecnico != null ? t.tecnico.nombre.concat(' ').concat(t.tecnico.apellidos) : 'Sin asignar'}"/>
                         </p:column>
 
+                        <p:column headerText="Prioridad" sortBy="#{t.prioridad}" filterBy="#{t.prioridad}" filterMatchMode="contains">
+                            <h:outputText value="#{t.prioridad}"/>
+                        </p:column>
+
                         <p:column headerText="Estado" sortBy="#{t.estado}" filterBy="#{t.estado}" filterMatchMode="contains">
                             <h:outputText value="#{t.estado}"/>
                         </p:column>
@@ -92,7 +96,7 @@
                             <h:outputText value="#{ticketsAdminUI.formatearFecha(t.fechaCreacion)}"/>
                         </p:column>
 
-                        <p:column headerText="Acciones" style="width: 240px; text-align: center;">
+                        <p:column headerText="Acciones" style="width: 310px; text-align: center;">
                             <div style="display: flex; gap: 0.4rem; justify-content: center; flex-wrap: wrap;">
                                 <p:commandButton value="Detalle"
                                                  icon="pi pi-eye"
@@ -100,6 +104,15 @@
                                                  action="#{ticketsAdminUI.seleccionarTicket(t)}"
                                                  update=":formAdminTickets:dialogDetalle"
                                                  oncomplete="PF('dlgDetalleWidget').show()"
+                                                 styleClass="secondary"/>
+
+                                <p:commandButton value="Prioridad"
+                                                 icon="pi pi-flag"
+                                                 process="@this"
+                                                 action="#{ticketsAdminUI.abrirModalPrioridad(t)}"
+                                                 disabled="#{t.estado eq 'Terminado'}"
+                                                 update=":formAdminTickets:dialogPrioridad :formAdminTickets:mensajes"
+                                                 oncomplete="PF('dlgPrioridadWidget').show()"
                                                  styleClass="secondary"/>
 
                                 <p:commandButton value="Reasignar"
@@ -129,6 +142,9 @@
                         <dt>Estado actual</dt>
                         <dd><h:outputText value="#{ticketsAdminUI.ticketSeleccionado.estado}"/></dd>
 
+                        <dt>Prioridad</dt>
+                        <dd><h:outputText value="#{ticketsAdminUI.ticketSeleccionado.prioridad}"/></dd>
+
                         <dt>Soporte asignado</dt>
                         <dd>
                             <h:outputText value="#{ticketsAdminUI.ticketSeleccionado.tecnico != null
@@ -148,6 +164,53 @@
                         <dt>Descripción completa</dt>
                         <dd><h:outputText value="#{ticketsAdminUI.ticketSeleccionado.descripcion}"/></dd>
                     </dl>
+                </h:panelGroup>
+            </p:dialog>
+
+            <p:dialog id="dialogPrioridad"
+                      header="Cambiar Prioridad del Ticket"
+                      widgetVar="dlgPrioridadWidget"
+                      modal="true"
+                      resizable="false"
+                      width="440">
+                <h:panelGroup rendered="#{not empty ticketsAdminUI.ticketPrioridad}">
+                    <dl class="account" style="margin-bottom: 1rem;">
+                        <dt>Folio del ticket</dt>
+                        <dd><h:outputText value="#{ticketsAdminUI.ticketPrioridad.folio}"/></dd>
+
+                        <dt>Prioridad actual</dt>
+                        <dd><h:outputText value="#{ticketsAdminUI.ticketPrioridad.prioridad}"/></dd>
+                    </dl>
+
+                    <div style="margin-bottom: 1.25rem;">
+                        <p:outputLabel for="selectPrioridad"
+                                       value="Nueva prioridad:"
+                                       style="display: block; font-weight: 600; margin-bottom: 0.4rem;"/>
+                        <p:selectOneMenu id="selectPrioridad"
+                                         value="#{ticketsAdminUI.nuevaPrioridad}"
+                                         style="width: 100%;">
+                            <f:selectItem itemLabel="Baja" itemValue="Baja"/>
+                            <f:selectItem itemLabel="Media" itemValue="Media"/>
+                            <f:selectItem itemLabel="Alta" itemValue="Alta"/>
+                            <f:selectItem itemLabel="Urgente" itemValue="Urgente"/>
+                        </p:selectOneMenu>
+                    </div>
+
+                    <div style="display: flex; justify-content: flex-end; gap: 0.5rem;">
+                        <p:commandButton value="Cancelar"
+                                         icon="pi pi-times"
+                                         immediate="true"
+                                         process="@this"
+                                         oncomplete="PF('dlgPrioridadWidget').hide()"
+                                         styleClass="secondary"/>
+
+                        <p:commandButton value="Guardar prioridad"
+                                         icon="pi pi-check"
+                                         process="dialogPrioridad"
+                                         action="#{ticketsAdminUI.confirmarCambioPrioridad}"
+                                         update=":formAdminTickets:panelContenidoAdmin :formAdminTickets:mensajes"
+                                         oncomplete="if (!args.validationFailed) PF('dlgPrioridadWidget').hide();"/>
+                    </div>
                 </h:panelGroup>
             </p:dialog>
 

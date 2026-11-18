@@ -1,0 +1,101 @@
+<ui:composition template="/WEB-INF/templates/principal.xhtml"
+                xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="jakarta.faces.facelets"
+                xmlns:h="jakarta.faces.html"
+                xmlns:f="jakarta.faces.core"
+                xmlns:p="http://primefaces.org/ui">
+
+    <ui:define name="titulo">Bitácora de Auditoría de Tickets</ui:define>
+
+    <ui:define name="contenido">
+        <h:form id="formBitacora">
+            <p:growl id="mensajes" showDetail="true" life="4000"/>
+
+            <section class="panel section-space">
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.25rem;">
+                    <div>
+                        <h2 style="margin-bottom: 0.25rem;">Historial de cambios y trazabilidad</h2>
+                        <p style="margin: 0; opacity: 0.8;">Consulta cambios de estado, asignación de técnicos y nivel de prioridad por incidencia.</p>
+                    </div>
+
+                    <div style="display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap;">
+                        <p:selectOneMenu id="filtroTicket"
+                                         value="#{bitacoraUI.idTicketFiltro}"
+                                         filter="true"
+                                         filterMatchMode="contains"
+                                         style="width: 310px;">
+                            <f:selectItem itemLabel="Todos los tickets (bitácora general)" itemValue="#{null}"/>
+                            <f:selectItems value="#{bitacoraUI.listaTickets}"
+                                           var="t"
+                                           itemValue="#{t.idTicket}"
+                                           itemLabel="#{t.folio} - #{t.estado}"/>
+                            <p:ajax listener="#{bitacoraUI.cargarBitacora}" update="tablaBitacora mensajes"/>
+                        </p:selectOneMenu>
+
+                        <p:commandButton value="Actualizar"
+                                         icon="pi pi-refresh"
+                                         action="#{bitacoraUI.cargarBitacora}"
+                                         process="@this"
+                                         update="tablaBitacora mensajes"
+                                         styleClass="secondary"/>
+                    </div>
+                </div>
+
+                <p:dataTable id="tablaBitacora"
+                             var="b"
+                             value="#{bitacoraUI.registros}"
+                             widgetVar="tablaBitacoraWidget"
+                             filteredValue="#{bitacoraUI.registrosFiltrados}"
+                             paginator="true"
+                             rows="12"
+                             paginatorPosition="bottom"
+                             emptyMessage="No hay movimientos registrados en la bitácora.">
+
+                    <f:facet name="header">
+                        <div style="display: flex; justify-content: flex-end;">
+                            <p:inputText id="globalFilter"
+                                         onkeyup="PF('tablaBitacoraWidget').filter()"
+                                         placeholder="Buscar por folio, evento, valor o responsable..."
+                                         style="width: 340px;"/>
+                        </div>
+                    </f:facet>
+
+                    <p:column headerText="Fecha y hora" sortBy="#{b.fechaHora}" style="width: 170px;">
+                        <h:outputText value="#{bitacoraUI.formatearFecha(b.fechaHora)}"/>
+                    </p:column>
+
+                    <p:column headerText="Folio" sortBy="#{b.ticket.folio}" filterBy="#{b.ticket.folio}" filterMatchMode="contains" style="width: 190px;">
+                        <h:outputText value="#{b.ticket.folio}"/>
+                    </p:column>
+
+                    <p:column headerText="Tipo de cambio"
+                              sortBy="#{bitacoraUI.etiquetarEvento(b.tipoEvento)}"
+                              filterBy="#{bitacoraUI.etiquetarEvento(b.tipoEvento)}"
+                              filterMatchMode="contains"
+                              style="width: 185px;">
+                        <strong><h:outputText value="#{bitacoraUI.etiquetarEvento(b.tipoEvento)}"/></strong>
+                    </p:column>
+
+                    <p:column headerText="Valor anterior" filterBy="#{b.valorAnterior}" filterMatchMode="contains">
+                        <h:outputText value="#{not empty b.valorAnterior ? b.valorAnterior : '-'}"/>
+                    </p:column>
+
+                    <p:column headerText="Valor nuevo" filterBy="#{b.valorNuevo}" filterMatchMode="contains">
+                        <h:outputText value="#{b.valorNuevo}"/>
+                    </p:column>
+
+                    <p:column headerText="Realizado por"
+                              sortBy="#{b.actor != null ? b.actor.nombre : 'Sistema'}"
+                              filterBy="#{b.actor != null ? b.actor.nombre.concat(' ').concat(b.actor.apellidos).concat(' ').concat(b.actor.rfc) : 'Sistema'}"
+                              filterMatchMode="contains">
+                        <h:outputText value="#{b.actor != null ? b.actor.nombre.concat(' ').concat(b.actor.apellidos).concat(' (').concat(b.actor.rfc).concat(')') : 'Sistema'}"/>
+                    </p:column>
+
+                    <p:column headerText="Observación" filterBy="#{b.observacion}" filterMatchMode="contains">
+                        <h:outputText value="#{not empty b.observacion ? b.observacion : '-'}"/>
+                    </p:column>
+                </p:dataTable>
+            </section>
+        </h:form>
+    </ui:define>
+</ui:composition>
