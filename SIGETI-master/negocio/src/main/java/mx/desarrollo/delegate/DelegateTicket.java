@@ -7,7 +7,8 @@ import mx.desarrollo.persistence.dao.TicketDAO;
 import mx.desarrollo.persistence.dao.TipoIncidenciaDAO;
 
 public class DelegateTicket {
-
+    private TicketFacade ticketFacade = new TicketFacade();
+    
     public List<TipoIncidencia> obtenerTipos() {
         return new TipoIncidenciaDAO().obtenerActivos();
     }
@@ -30,5 +31,9 @@ public class DelegateTicket {
             throw new IllegalArgumentException("La descripción admite hasta 4000 caracteres.");
         }
         return new TicketDAO().registrar(rfc, numeroInventario, idTipo, descripcionNormalizada);
+    }
+    
+    public List<Ticket> consultarTicketsTecnico(String rfc) {
+         return ticketFacade.obtenerTicketsPorTecnico(rfc);
     }
 }
