@@ -57,4 +57,33 @@ public class TicketDAO {
             manager.close();
         }
     }
+
+    public List<Ticket> consultarPorTecnico(String rfc) {
+        TypedQuery<Ticket> query = em.createQuery(
+                    "SELECT IdTicket, Folio, Usuario, Equipo, "
+               + "TipoIncidencia, Descripcion, Estado, FechaCreacion "
+               + "FROM Tickets "
+               + "WHERE TecnicoAsignado = ? "
+               + "ORDER BY FechaCreacion DESC";
+        );
+        try (Connection conexion = Conexion.getConnection(); PreparedStatement ps = conexion.prepareStatement(sql)) {
+            ps.setString(1, rfc);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Ticket ticket = new Ticket();
+                
+                ticket.setIdTicket(rs.getInt("IdTicket"));
+                ticket.setFolio(rs.getString("Folio"));
+                ticket.setUsuario(rs.getString("Usuario"));
+                ticket.setEquipo(rs.getString("Equipo"));
+                ticket.setTipoIncidencia(rs.getString("TipoIncidencia"));
+                ticket.setDescripcion(rs.getString("Descripcion"));
+                ticket.setEstado(rs.getString("Estado"));
+                ticket.setFechaCreacion(rs.getTimestamp("FechaCreacion"));
+                
+                lista.add(ticket);
+            }
+        }
+        return lista;
+    }
 }
