@@ -1,0 +1,59 @@
+.encabezado-inicio {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.encabezado-inicio form {
+    margin: 0;
+}
+
+.tarjeta-inicio {
+    max-width: 800px;
+}
+
+.tarjeta-inicio h2 {
+    margin-top: 28px;
+    font-size: 18px;
+}
+
+.datos-cuenta {
+    display: grid;
+    grid-template-columns: 160px 1fr;
+    gap: 16px;
+    margin-bottom: 0;
+}
+
+.datos-cuenta dt {
+    font-weight: bold;
+}
+
+.datos-cuenta dd {
+    margin: 0;
+    color: #586575;
+    overflow-wrap: anywhere;
+}
+
+body .boton-salir {
+    background: #dc3545;
+    border: 1px solid #dc3545;
+    color: white;
+}
+
+body .boton-salir:hover {
+    background: #b52a37;
+    border-color: #b52a37;
+}
+
+@media (max-width: 480px) {
+    .datos-cuenta {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+
+    .datos-cuenta dd {
+        margin-bottom: 12px;
+    }
+}

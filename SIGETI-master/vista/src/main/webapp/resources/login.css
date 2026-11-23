@@ -1,0 +1,86 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #f4f6f9;
+    color: #1b2832;
+}
+
+.encabezado {
+    background-color: #1b2832;
+    color: white;
+    padding: 20px 30px;
+}
+
+.encabezado strong {
+    font-size: 22px;
+}
+
+.encabezado span {
+    margin-left: 12px;
+    font-size: 13px;
+    color: #c3ccd5;
+}
+
+.contenedor {
+    padding: 60px 20px;
+}
+
+.tarjeta {
+    max-width: 420px;
+    margin: 0 auto;
+    padding: 32px;
+    background-color: white;
+    border: 1px solid #e1e6ed;
+    border-radius: 6px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.tarjeta h1 {
+    margin-top: 0;
+    font-size: 26px;
+}
+
+.descripcion {
+    margin-bottom: 28px;
+    color: #586575;
+    line-height: 1.5;
+}
+
+.campo {
+    margin-bottom: 20px;
+}
+
+.campo label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+}
+
+body .tarjeta .entrada {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 12px;
+}
+
+body .tarjeta .boton-login {
+    width: 100%;
+    margin-top: 8px;
+    background: #146cbd;
+    border: 1px solid #146cbd;
+    color: white;
+}
+
+body .tarjeta .boton-login:hover {
+    background: #105796;
+    border-color: #105796;
+}
+
+@media (max-width: 480px) {
+    .contenedor {
+        padding: 30px 16px;
+    }
+
+    .tarjeta {
+        padding: 24px;
+    }
+}

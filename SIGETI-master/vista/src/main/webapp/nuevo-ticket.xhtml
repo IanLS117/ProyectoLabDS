@@ -1,0 +1,53 @@
+<ui:composition template="/WEB-INF/templates/principal.xhtml" xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="jakarta.faces.facelets" xmlns:h="jakarta.faces.html" xmlns:f="jakarta.faces.core" xmlns:p="http://primefaces.org/ui">
+    <ui:define name="metadata"><f:metadata><f:viewAction action="#{ticketUI.cargar}"/></f:metadata></ui:define>
+    <ui:define name="titulo">Registrar ticket</ui:define>
+    <ui:define name="contenido">
+        <p:messages id="mensajes" showDetail="false"/>
+        <h:panelGroup rendered="#{ticketUI.cargaCorrecta and empty ticketUI.equipos}" layout="block" styleClass="notice">
+            No tienes equipos asignados. Para registrar una incidencia necesitas un equipo en resguardo.
+        </h:panelGroup>
+        <h:panelGroup rendered="#{ticketUI.cargaCorrecta and empty ticketUI.tipos}" layout="block" styleClass="notice">
+            No hay tipos de incidencia disponibles. Comunícate con el administrador.
+        </h:panelGroup>
+        <h:panelGroup rendered="#{ticketUI.ticketRegistrado ne null}" layout="block" styleClass="panel confirmation">
+            <h2>Ticket registrado</h2>
+            <p>Folio: <strong><h:outputText value="#{ticketUI.ticketRegistrado.folio}"/></strong></p>
+            <p>Estado: <h:outputText value="#{ticketUI.ticketRegistrado.estado}"/></p>
+            <p>Conserva tu folio como comprobante del registro.</p>
+            <h:link outcome="/nuevo-ticket" value="Registrar otro ticket" styleClass="button"/>
+        </h:panelGroup>
+        <h:panelGroup layout="block" rendered="#{ticketUI.ticketRegistrado eq null}" styleClass="panel">
+            <p>Solicitante: <strong><h:outputText value="#{loginUI.usuario.nombre} #{loginUI.usuario.apellidos}"/></strong></p>
+            <p>Selecciona uno de tus equipos y describe el problema. Los campos son obligatorios.</p>
+            <h:form id="registro">
+                <div class="form-grid">
+                    <div class="field">
+                        <p:outputLabel for="equipo" value="Equipo en resguardo"/>
+                        <p:selectOneMenu id="equipo" value="#{ticketUI.numeroInventario}" required="true" requiredMessage="Selecciona un equipo." disabled="#{not ticketUI.puedeRegistrar}">
+                            <f:selectItem itemLabel="Seleccionar equipo" itemValue="#{null}" noSelectionOption="true"/>
+                            <f:selectItems value="#{ticketUI.equipos}" var="equipo" itemValue="#{equipo.numeroInventario}" itemLabel="#{equipo.numeroInventario} — #{equipo.marca} #{equipo.modelo}"/>
+                        </p:selectOneMenu>
+                    </div>
+                    <div class="field">
+                        <p:outputLabel for="tipo" value="Tipo de incidencia"/>
+                        <p:selectOneMenu id="tipo" value="#{ticketUI.idTipoIncidencia}" required="true" requiredMessage="Selecciona un tipo de incidencia." disabled="#{not ticketUI.puedeRegistrar}">
+                            <f:selectItem itemLabel="Seleccionar tipo" itemValue="#{null}" noSelectionOption="true"/>
+                            <f:selectItems value="#{ticketUI.tipos}" var="tipo" itemValue="#{tipo.idTipoIncidencia}" itemLabel="#{tipo.nombre}"/>
+                        </p:selectOneMenu>
+                    </div>
+                </div>
+                <div class="field description-field">
+                    <p:outputLabel for="descripcion" value="Descripción del problema"/>
+                    <p:inputTextarea id="descripcion" value="#{ticketUI.descripcion}" required="true" requiredMessage="Describe el problema." maxlength="4000" rows="6" autoResize="false" disabled="#{not ticketUI.puedeRegistrar}">
+                        <f:validateLength maximum="4000"/>
+                    </p:inputTextarea>
+                    <small>Máximo 4000 caracteres.</small>
+                </div>
+                <div class="actions">
+                    <p:commandButton value="Registrar ticket" action="#{ticketUI.registrar}" ajax="false" disabled="#{not ticketUI.puedeRegistrar}"/>
+                    <h:link outcome="/mis-equipos" value="Volver a mis equipos" styleClass="button secondary"/>
+                </div>
+            </h:form>
+        </h:panelGroup>
+    </ui:define>
+</ui:composition>

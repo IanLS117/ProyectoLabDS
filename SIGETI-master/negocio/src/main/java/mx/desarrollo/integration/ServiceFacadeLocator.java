@@ -1,6 +1,7 @@
 package mx.desarrollo.integration;
 
 import mx.desarrollo.facade.FacadeUsuario;
+import mx.desarrollo.facade.FacadeSeguimiento;
 
 public class ServiceFacadeLocator {
 
@@ -12,4 +13,14 @@ public class ServiceFacadeLocator {
         }
         return facadeUsuario;
     }
+
+    private static FacadeSeguimiento facadeSeguimiento;
+
+    public static FacadeSeguimiento getInstanceFacadeSeguimiento() {
+        if (facadeSeguimiento == null) {
+            facadeSeguimiento = new FacadeSeguimiento();
+        }
+        return facadeSeguimiento;
+    }
+
 }

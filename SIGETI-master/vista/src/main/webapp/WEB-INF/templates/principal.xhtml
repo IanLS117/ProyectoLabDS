@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:h="jakarta.faces.html" xmlns:f="jakarta.faces.core" xmlns:ui="jakarta.faces.facelets" xmlns:p="http://primefaces.org/ui">
+<ui:insert name="metadata"/>
+<h:head>
+    <title><ui:insert name="titulo">SIGETI</ui:insert> | SIGETI</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <h:outputStylesheet name="sigeti.css"/>
+</h:head>
+<h:body>
+    <header class="topbar">
+        <div><h:link outcome="/index" styleClass="brand" value="SIGETI"/><span class="subtitle">Sistema de tickets</span></div>
+        <nav aria-label="Navegación principal">
+            <h:link outcome="/index" value="Inicio"/>
+            <h:link outcome="/mis-equipos" value="Mis equipos" rendered="#{loginUI.usuario.tienePermiso('consultar_equipos')}"/>
+            <h:link outcome="/nuevo-ticket" value="Registrar ticket" rendered="#{loginUI.usuario.tienePermiso('crear_ticket')}"/>
+            <h:link outcome="/seguimientos" value="Seguimientos" rendered="#{loginUI.usuario.tienePermiso('atender_tickets')}"/>
+        </nav>
+        <h:form id="salir">
+            <p:commandButton value="Cerrar sesión" action="#{loginUI.cerrarSesion}" ajax="false" styleClass="secondary"/>
+        </h:form>
+    </header>
+    <main class="page">
+        <div class="session-info"><h:outputText value="#{loginUI.usuario.nombre} #{loginUI.usuario.apellidos} · #{loginUI.usuario.rol.nombreRol}"/></div>
+        <h1><ui:insert name="titulo">Inicio</ui:insert></h1>
+        <ui:insert name="contenido"/>
+    </main>
+</h:body>
+</html>

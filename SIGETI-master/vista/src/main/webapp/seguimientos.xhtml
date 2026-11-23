@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:f="jakarta.faces.core"
+      xmlns:ui="jakarta.faces.facelets"
+      xmlns:p="http://primefaces.org/ui">
+
+<ui:composition template="/WEB-INF/templates/principal.xhtml">
+    <ui:define name="titulo">Seguimiento de Tickets</ui:define>
+
+    <ui:define name="contenido">
+        <h:form id="formSeguimientos">
+            <p:growl id="mensajes" showDetail="true" life="4000" />
+
+            <div class="page-header">
+                <h1 class="page-title">Seguimiento y Bitácora Técnica</h1>
+                <p class="page-subtitle">Documenta los avances y observaciones durante la atención de los tickets.</p>
+            </div>
+
+            <!-- SECCIÓN 1: LISTADO DE TICKETS -->
+            <div class="card">
+                <h3>Tickets Registrados</h3>
+                <p:dataTable id="tablaTickets" value="#{seguimientoBeanUI.ticketsAsignados}" var="t"
+                             paginator="true" rows="5" paginatorPosition="bottom"
+                             emptyMessage="No hay tickets disponibles actualmente.">
+
+                    <p:column headerText="Folio" style="width: 140px; text-align: center;">
+                        <h:outputText value="#{t.folio}" style="font-weight: bold;" />
+                    </p:column>
+
+                    <p:column headerText="Equipo">
+                        <h:outputText value="#{t.equipo.numeroInventario} - #{t.equipo.marca} #{t.equipo.modelo}" />
+                    </p:column>
+
+                    <p:column headerText="Problema Reportado">
+                        <h:outputText value="#{t.descripcion}" />
+                    </p:column>
+
+                    <p:column headerText="Estado" style="width: 130px; text-align: center;">
+                        <h:outputText value="#{t.estado}" styleClass="badge" />
+                    </p:column>
+
+                    <p:column headerText="Acción" style="width: 165px; text-align: center;">
+                        <p:commandButton value="Dar seguimiento"
+                                         icon="pi pi-comments"
+                                         action="#{seguimientoBeanUI.seleccionarTicket(t)}"
+                                         update=":formSeguimientos:panelDetalle"
+                                         styleClass="ui-button-sm" />
+                    </p:column>
+                </p:dataTable>
+            </div>
+
+            <!-- SECCIÓN 2: DETALLE DE SEGUIMIENTO DEL TICKET SELECCIONADO -->
+            <h:panelGroup id="panelDetalle">
+                <h:panelGroup rendered="#{seguimientoBeanUI.ticketSeleccionado != null}">
+                    <div class="card" style="margin-top: 20px;">
+                        <h3>Observaciones del Ticket #{seguimientoBeanUI.ticketSeleccionado.folio}</h3>
+
+                        <!-- Formulario habilitado solo si el ticket está 'En atención' -->
+                        <h:panelGroup rendered="#{seguimientoBeanUI.ticketSeleccionado.estado eq 'En atención'}">
+                            <div style="margin-bottom: 14px;">
+                                <p:outputLabel for="txtObservacion" value="Nueva observación de avance *"
+                                               style="display:block; font-weight:600; margin-bottom:6px;" />
+                                <p:inputTextarea id="txtObservacion"
+                                                 value="#{seguimientoBeanUI.nuevaObservacion}"
+                                                 rows="3" style="width: 100%;"
+                                                 placeholder="Escribe las acciones técnicas realizadas, diagnóstico o pruebas efectuadas..." />
+                            </div>
+
+                            <p:commandButton value="Guardar observación"
+                                             icon="pi pi-save"
+                                             action="#{seguimientoBeanUI.guardarObservacion}"
+                                             update="panelDetalle mensajes" />
+                        </h:panelGroup>
+
+                        <!-- Aviso si el ticket aún está en 'Enviado' o ya está 'Terminado' -->
+                        <h:panelGroup rendered="#{seguimientoBeanUI.ticketSeleccionado.estado ne 'En atención'}">
+                            <p style="color: #64748b; font-style: italic; margin-bottom: 12px;">
+                                Este ticket se encuentra en estado «#{seguimientoBeanUI.ticketSeleccionado.estado}». Solo se pueden agregar observaciones mientras esté «En atención».
+                            </p>
+                        </h:panelGroup>
+
+                        <!-- Tabla cronológica de observaciones -->
+                        <h4 style="margin-top: 22px; margin-bottom: 10px;">Historial registrado</h4>
+                        <p:dataTable value="#{seguimientoBeanUI.historialSeguimientos}" var="seg"
+                                     emptyMessage="Aún no se han registrado observaciones para este ticket.">
+                            <p:column headerText="#" style="width: 60px; text-align: center;">
+                                <h:outputText value="#{seg.id.numeroSeguimiento}" />
+                            </p:column>
+
+                            <p:column headerText="Fecha y Hora" style="width: 165px;">
+                                <h:outputText value="#{seg.fecha}">
+                                    <f:convertDateTime pattern="dd/MM/yyyy HH:mm" timeZone="America/Tijuana" />
+                                </h:outputText>
+                            </p:column>
+
+                            <p:column headerText="Soporte Técnico" style="width: 180px;">
+                                <h:outputText value="#{loginUI.usuario.nombre} #{loginUI.usuario.apellidos}" />
+                            </p:column>
+
+                            <p:column headerText="Observación">
+                                <h:outputText value="#{seg.descripcion}" />
+                            </p:column>
+                        </p:dataTable>
+                    </div>
+                </h:panelGroup>
+            </h:panelGroup>
+        </h:form>
+    </ui:define>
+</ui:composition>
+</html>

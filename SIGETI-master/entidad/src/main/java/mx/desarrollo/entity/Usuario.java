@@ -1,37 +1,64 @@
 package mx.desarrollo.entity;
 
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import java.io.Serializable;
 
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.JoinColumn;
+
 @Entity
-@Table(name = "usuario", schema = "desarrollo")
+@Table(name = "usuario")
 public class Usuario implements Serializable {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "idusuario", nullable = false)
-    private Integer id;
+    @Column(name = "rfc", nullable = false,
+            length = 13, columnDefinition = "CHAR(13)")
+    private String rfc;
 
-    @Size(max = 45)
-    @NotNull
-    @Column(name = "correo", nullable = false, length = 45)
+    @Column(name = "nombre", nullable = false, length = 80)
+    private String nombre;
+
+    @Column(name = "apellidos", nullable = false, length = 100)
+    private String apellidos;
+
+    @Column(name = "correo", nullable = false, length = 120)
     private String correo;
 
-    @Size(max = 45)
-    @NotNull
-    @Column(name = "contrasena", nullable = false, length = 45)
+    @Column(name = "contrasena", nullable = false, length = 255)
     private String contrasena;
 
-    public Usuario() {}
+    @ManyToOne
+    @JoinColumn(name = "id_rol", nullable = false)
+    private Rol rol;
 
-    public Integer getId() {
-        return id;
+    public Usuario() {
     }
 
-    public void setId(Integer id) {
-        this.id = id;
+    public String getRfc() {
+        return rfc;
+    }
+
+    public void setRfc(String rfc) {
+        this.rfc = rfc;
+    }
+
+    public String getNombre() {
+        return nombre;
+    }
+
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
+
+    public String getApellidos() {
+        return apellidos;
+    }
+
+    public void setApellidos(String apellidos) {
+        this.apellidos = apellidos;
     }
 
     public String getCorreo() {
@@ -48,5 +75,27 @@ public class Usuario implements Serializable {
 
     public void setContrasena(String contrasena) {
         this.contrasena = contrasena;
+    }
+
+    public Rol getRol() {
+        return rol;
+    }
+
+    public void setRol(Rol rol) {
+        this.rol = rol;
+    }
+
+    public boolean tienePermiso(String nombrePermiso) {
+        if (rol == null) {
+            return false;
+        }
+
+        for (Permiso permiso : rol.getPermisos()) {
+            if (nombrePermiso.equals(permiso.getNombrePermiso())) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
