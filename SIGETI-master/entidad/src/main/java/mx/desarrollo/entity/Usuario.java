@@ -34,6 +34,21 @@ public class Usuario implements Serializable {
     @JoinColumn(name = "id_rol", nullable = false)
     private Rol rol;
 
+    @Column(name = "area_experto", length = 100)
+    private String areaExperto;
+
+    @Column(name = "municipio", length = 80)
+    private String municipio;
+
+    @Column(name = "area", length = 80)
+    private String area;
+
+    @Column(name = "edificio", length = 80)
+    private String edificio;
+
+    @Column(name = "telefono", length = 15)
+    private String telefono;
+
     public Usuario() {
     }
 
@@ -83,6 +98,46 @@ public class Usuario implements Serializable {
 
     public void setRol(Rol rol) {
         this.rol = rol;
+    }
+
+    public String getAreaExperto() {
+        return areaExperto;
+    }
+
+    public void setAreaExperto(String areaExperto) {
+        this.areaExperto = areaExperto;
+    }
+
+    public String getMunicipio() {
+        return municipio;
+    }
+
+    public void setMunicipio(String municipio) {
+        this.municipio = municipio;
+    }
+
+    public String getArea() {
+        return area;
+    }
+
+    public void setArea(String area) {
+        this.area = area;
+    }
+
+    public String getEdificio() {
+        return edificio;
+    }
+
+    public void setEdificio(String edificio) {
+        this.edificio = edificio;
+    }
+
+    public String getTelefono() {
+        return telefono;
+    }
+
+    public void setTelefono(String telefono) {
+        this.telefono = telefono;
     }
 
     public boolean tienePermiso(String nombrePermiso) {

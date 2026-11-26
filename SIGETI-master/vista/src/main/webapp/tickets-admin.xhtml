@@ -8,6 +8,36 @@
     <ui:define name="titulo">Administración de Tickets</ui:define>
 
     <ui:define name="contenido">
+        <style>
+            .tabla-admin-legible table {
+                table-layout: auto !important;
+                width: 100%;
+            }
+            .tabla-admin-legible td,
+            .tabla-admin-legible th {
+                white-space: normal !important;
+                word-break: normal !important;
+                overflow-wrap: break-word !important;
+                vertical-align: middle;
+            }
+            .tabla-admin-legible .ui-column-filter {
+                display: none !important;
+            }
+            .panel-filtros-grid {
+                display: flex;
+                flex-direction: column;
+                gap: 0.85rem;
+                min-width: 260px;
+                padding: 0.25rem;
+            }
+            .panel-filtros-grid label {
+                display: block;
+                font-size: 0.85rem;
+                font-weight: 600;
+                margin-bottom: 0.3rem;
+            }
+        </style>
+
         <h:form id="formAdminTickets">
             <p:growl id="mensajes" showDetail="true" life="4000"/>
 
@@ -32,14 +62,86 @@
                 </div>
 
                 <section class="panel section-space">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; gap: 0.75rem; flex-wrap: wrap;">
                         <h2>Listado general de incidencias</h2>
-                        <p:commandButton value="Actualizar listado"
-                                         icon="pi pi-refresh"
-                                         action="#{ticketsAdminUI.cargarTickets}"
-                                         process="@this"
-                                         update="panelContenidoAdmin mensajes"
-                                         styleClass="secondary"/>
+                        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                            <p:commandButton id="btnFiltrosAdmin"
+                                             value="Filtros"
+                                             icon="pi pi-filter"
+                                             type="button"
+                                             styleClass="secondary"/>
+
+                            <p:overlayPanel for="btnFiltrosAdmin" widgetVar="panelFiltrosAdminWidget" dismissable="true">
+                                <div class="panel-filtros-grid">
+                                    <div>
+                                        <label for="filtroPrioridadAdmin">Prioridad</label>
+                                        <p:selectOneMenu id="filtroPrioridadAdmin"
+                                                         value="#{ticketsAdminUI.prioridadFiltro}"
+                                                         style="width: 100%;">
+                                            <f:selectItem itemLabel="Todas" itemValue=""/>
+                                            <f:selectItem itemLabel="Urgente" itemValue="Urgente"/>
+                                            <f:selectItem itemLabel="Alta" itemValue="Alta"/>
+                                            <f:selectItem itemLabel="Media" itemValue="Media"/>
+                                            <f:selectItem itemLabel="Baja" itemValue="Baja"/>
+                                        </p:selectOneMenu>
+                                    </div>
+
+                                    <div>
+                                        <label for="filtroFechaAdmin">Fecha</label>
+                                        <p:datePicker id="filtroFechaAdmin"
+                                                      value="#{ticketsAdminUI.fechaFiltro}"
+                                                      pattern="dd/MM/yyyy"
+                                                      showIcon="true"
+                                                      placeholder="dd/mm/aaaa"
+                                                      style="width: 100%;"/>
+                                    </div>
+
+                                    <div>
+                                        <label for="filtroEstadoAdmin">Estado</label>
+                                        <p:selectOneMenu id="filtroEstadoAdmin"
+                                                         value="#{ticketsAdminUI.estadoFiltro}"
+                                                         style="width: 100%;">
+                                            <f:selectItem itemLabel="Todos" itemValue=""/>
+                                            <f:selectItem itemLabel="Enviado" itemValue="Enviado"/>
+                                            <f:selectItem itemLabel="En atención" itemValue="En atención"/>
+                                            <f:selectItem itemLabel="Terminado" itemValue="Terminado"/>
+                                        </p:selectOneMenu>
+                                    </div>
+
+                                    <div style="display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 0.25rem;">
+                                        <p:commandButton value="Limpiar"
+                                                         icon="pi pi-times"
+                                                         action="#{ticketsAdminUI.limpiarFiltros}"
+                                                         process="@this"
+                                                         update="tablaTickets filtroPrioridadAdmin filtroFechaAdmin filtroEstadoAdmin mensajes"
+                                                         oncomplete="PF('panelFiltrosAdminWidget').hide()"
+                                                         styleClass="secondary"/>
+
+                                        <p:commandButton value="Aplicar"
+                                                         icon="pi pi-check"
+                                                         action="#{ticketsAdminUI.aplicarFiltros}"
+                                                         process="filtroPrioridadAdmin filtroFechaAdmin filtroEstadoAdmin @this"
+                                                         update="tablaTickets mensajes"
+                                                         oncomplete="PF('panelFiltrosAdminWidget').hide()"/>
+                                    </div>
+                                </div>
+                            </p:overlayPanel>
+
+                            <p:commandButton value="Áreas de soporte"
+                                             icon="pi pi-briefcase"
+                                             action="#{ticketsAdminUI.abrirModalAreaExperto}"
+                                             process="@this"
+                                             update=":formAdminTickets:dialogAreaExperto"
+                                             oncomplete="PF('dlgAreaExpertoWidget').show()"
+                                             styleClass="secondary"/>
+
+                            <p:commandButton value="Actualizar listado"
+                                             icon="pi pi-refresh"
+                                             action="#{ticketsAdminUI.cargarTickets}"
+                                             process="@this"
+                                             update="panelContenidoAdmin mensajes"
+                                             styleClass="secondary"/>
+                        </div>
                     </div>
 
                     <p:dataTable id="tablaTickets"
@@ -47,6 +149,8 @@
                                  value="#{ticketsAdminUI.tickets}"
                                  widgetVar="tablaTicketsWidget"
                                  filteredValue="#{ticketsAdminUI.ticketsFiltrados}"
+                                 styleClass="tabla-admin-legible"
+                                 tableStyle="table-layout: auto;"
                                  paginator="true"
                                  rows="10"
                                  paginatorPosition="bottom"
@@ -61,39 +165,72 @@
                             </div>
                         </f:facet>
 
-                        <p:column headerText="Folio" sortBy="#{t.folio}" filterBy="#{t.folio}" filterMatchMode="contains">
-                            <h:outputText value="#{t.folio}"/>
+                        <p:column headerText="Folio"
+                                  filterBy="#{t.folio}"
+                                  filterMatchMode="contains"
+                                  filterStyle="display: none;"
+                                  style="width: 105px; text-align: center;">
+                            <h:outputText value="#{t.folio}" style="white-space: nowrap; font-weight: 600;"/>
                         </p:column>
 
-                        <p:column headerText="Solicitante (RFC)" sortBy="#{t.usuario.rfcUsuario}" filterBy="#{t.usuario.rfcUsuario}" filterMatchMode="contains">
+                        <p:column headerText="Solicitante (RFC)"
+                                  filterBy="#{t.usuario.rfcUsuario}"
+                                  filterMatchMode="contains"
+                                  filterStyle="display: none;"
+                                  style="width: 135px;">
                             <h:outputText value="#{t.usuario.rfcUsuario}"/>
                         </p:column>
 
-                        <p:column headerText="Equipo" sortBy="#{t.equipo.numeroInventario}" filterBy="#{t.equipo.numeroInventario}" filterMatchMode="contains">
+                        <p:column headerText="Equipo"
+                                  filterBy="#{t.equipo.numeroInventario}"
+                                  filterMatchMode="contains"
+                                  filterStyle="display: none;"
+                                  style="width: 115px;">
                             <h:outputText value="#{t.equipo.numeroInventario}"/>
                         </p:column>
 
-                        <p:column headerText="Descripción del problema" filterBy="#{t.descripcion}" filterMatchMode="contains">
+                        <p:column headerText="Descripción del problema"
+                                  filterBy="#{t.descripcion}"
+                                  filterMatchMode="contains"
+                                  filterStyle="display: none;"
+                                  style="min-width: 190px;">
                             <h:outputText value="#{t.descripcion}"/>
                         </p:column>
 
                         <p:column headerText="Soporte asignado"
-                                  sortBy="#{t.tecnico != null ? t.tecnico.nombre : 'Sin asignar'}"
                                   filterBy="#{t.tecnico != null ? t.tecnico.nombre.concat(' ').concat(t.tecnico.apellidos) : 'Sin asignar'}"
-                                  filterMatchMode="contains">
+                                  filterMatchMode="contains"
+                                  filterStyle="display: none;"
+                                  style="min-width: 140px;">
                             <h:outputText value="#{t.tecnico != null ? t.tecnico.nombre.concat(' ').concat(t.tecnico.apellidos) : 'Sin asignar'}"/>
                         </p:column>
 
-                        <p:column headerText="Prioridad" sortBy="#{t.prioridad}" filterBy="#{t.prioridad}" filterMatchMode="contains">
+                        <p:column headerText="Prioridad"
+                                  filterBy="#{t.prioridad}"
+                                  filterMatchMode="contains"
+                                  filterStyle="display: none;"
+                                  style="width: 90px; text-align: center;">
                             <h:outputText value="#{t.prioridad}"/>
                         </p:column>
 
-                        <p:column headerText="Estado" sortBy="#{t.estado}" filterBy="#{t.estado}" filterMatchMode="contains">
+                        <p:column headerText="Estado"
+                                  filterBy="#{t.estado}"
+                                  filterMatchMode="contains"
+                                  filterStyle="display: none;"
+                                  style="width: 105px; text-align: center;">
                             <h:outputText value="#{t.estado}"/>
                         </p:column>
 
-                        <p:column headerText="Fecha de registro" sortBy="#{t.fechaCreacion}">
-                            <h:outputText value="#{ticketsAdminUI.formatearFecha(t.fechaCreacion)}"/>
+                        <p:column headerText="Fecha de registro"
+                                  style="width: 95px; text-align: center;">
+                            <div style="display: flex; flex-direction: column; line-height: 1.25;">
+                                <h:outputText value="#{t.fechaCreacion}" style="white-space: nowrap;">
+                                    <f:convertDateTime type="localDateTime" pattern="dd/MM/yyyy"/>
+                                </h:outputText>
+                                <h:outputText value="#{t.fechaCreacion}" style="font-size: 0.85em; opacity: 0.75; white-space: nowrap;">
+                                    <f:convertDateTime type="localDateTime" pattern="HH:mm"/>
+                                </h:outputText>
+                            </div>
                         </p:column>
 
                         <p:column headerText="Acciones" style="width: 310px; text-align: center;">
@@ -235,7 +372,7 @@
 
                     <div style="margin-bottom: 1.25rem;">
                         <p:outputLabel for="selectSoporte"
-                                       value="Nuevo técnico de soporte (carga actual):"
+                                       value="Nuevo técnico de soporte (especialidad y carga actual):"
                                        style="display: block; font-weight: 600; margin-bottom: 0.4rem;"/>
                         <p:selectOneMenu id="selectSoporte"
                                          value="#{ticketsAdminUI.rfcNuevoSoporte}"
@@ -248,7 +385,7 @@
                             <f:selectItems value="#{ticketsAdminUI.listaSoportes}"
                                            var="sop"
                                            itemValue="#{sop.rfc}"
-                                           itemLabel="#{sop.nombre} #{sop.apellidos} (#{ticketsAdminUI.obtenerCargaDeSoporte(sop.rfc)} tickets activos)"/>
+                                           itemLabel="#{sop.nombre} #{sop.apellidos}#{not empty sop.areaExperto ? ' - '.concat(sop.areaExperto) : ''} (#{ticketsAdminUI.obtenerCargaDeSoporte(sop.rfc)} tickets activos)"/>
                         </p:selectOneMenu>
                     </div>
 
@@ -269,6 +406,60 @@
                                          oncomplete="if (!args.validationFailed) { if (#{not ticketsAdminUI.mostrarModalReasignacion}) PF('dlgReasignarWidget').hide(); }"/>
                     </div>
                 </h:panelGroup>
+            </p:dialog>
+
+            <p:dialog id="dialogAreaExperto"
+                      header="Gestionar Área de Experto"
+                      widgetVar="dlgAreaExpertoWidget"
+                      modal="true"
+                      resizable="false"
+                      width="480">
+                <div style="margin-bottom: 1rem;">
+                    <p:outputLabel for="selectSoporteArea"
+                                   value="Técnico de soporte:"
+                                   style="display: block; font-weight: 600; margin-bottom: 0.4rem;"/>
+                    <p:selectOneMenu id="selectSoporteArea"
+                                     value="#{ticketsAdminUI.rfcSoporteArea}"
+                                     required="true"
+                                     requiredMessage="Seleccione un técnico de soporte."
+                                     style="width: 100%;">
+                        <f:selectItem itemLabel="-- Seleccione un técnico --"
+                                      itemValue="#{null}"
+                                      noSelectionOption="true"/>
+                        <f:selectItems value="#{ticketsAdminUI.listaSoportes}"
+                                       var="sop"
+                                       itemValue="#{sop.rfc}"
+                                       itemLabel="#{sop.nombre} #{sop.apellidos} (#{not empty sop.areaExperto ? sop.areaExperto : 'Sin asignar'})"/>
+                        <p:ajax listener="#{ticketsAdminUI.onCambioSoporteArea}" update="txtAreaExperto"/>
+                    </p:selectOneMenu>
+                </div>
+
+                <div style="margin-bottom: 1.25rem;">
+                    <p:outputLabel for="txtAreaExperto"
+                                   value="Área de experto:"
+                                   style="display: block; font-weight: 600; margin-bottom: 0.4rem;"/>
+                    <p:inputText id="txtAreaExperto"
+                                 value="#{ticketsAdminUI.areaExpertoEdit}"
+                                 maxlength="100"
+                                 placeholder="Ej. Redes, Hardware, Software, Impresoras..."
+                                 style="width: 100%;"/>
+                </div>
+
+                <div style="display: flex; justify-content: flex-end; gap: 0.5rem;">
+                    <p:commandButton value="Cancelar"
+                                     icon="pi pi-times"
+                                     immediate="true"
+                                     process="@this"
+                                     oncomplete="PF('dlgAreaExpertoWidget').hide()"
+                                     styleClass="secondary"/>
+
+                    <p:commandButton value="Guardar área"
+                                     icon="pi pi-check"
+                                     process="dialogAreaExperto"
+                                     action="#{ticketsAdminUI.guardarAreaExperto}"
+                                     update=":formAdminTickets:panelContenidoAdmin :formAdminTickets:mensajes :formAdminTickets:dialogAreaExperto"
+                                     oncomplete="if (!args.validationFailed) PF('dlgAreaExpertoWidget').hide();"/>
+                </div>
             </p:dialog>
         </h:form>
     </ui:define>

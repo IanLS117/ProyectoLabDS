@@ -39,6 +39,18 @@ public class DelegateUsuario {
         return usuario;
     }
 
+    public void actualizarAreaExperto(String rfcSoporte, String areaExperto) {
+        if (rfcSoporte == null || rfcSoporte.isBlank()) {
+            throw new IllegalArgumentException("Selecciona un técnico de soporte válido.");
+        }
+        var usuarioDAO = ServiceLocator.getInstanceUsuarioDAO();
+        Usuario soporte = usuarioDAO.find(rfcSoporte)
+                .orElseThrow(() -> new IllegalArgumentException("No se encontró el técnico de soporte."));
+
+        soporte.setAreaExperto(areaExperto != null ? areaExperto.trim() : null);
+        usuarioDAO.update(soporte);
+    }
+
     public void saveUsario(Usuario usuario) {
         ServiceLocator.getInstanceUsuarioDAO().save(usuario);
     }

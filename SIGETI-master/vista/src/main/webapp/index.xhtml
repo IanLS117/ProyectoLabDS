@@ -1,4 +1,7 @@
-<ui:composition template="/WEB-INF/templates/principal.xhtml" xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="jakarta.faces.facelets" xmlns:h="jakarta.faces.html">
+<ui:composition template="/WEB-INF/templates/principal.xhtml"
+                xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="jakarta.faces.facelets"
+                xmlns:h="jakarta.faces.html">
     <ui:define name="titulo">Inicio</ui:define>
     <ui:define name="contenido">
         <section class="panel">
@@ -9,20 +12,32 @@
                 <dt>Correo</dt><dd><h:outputText value="#{loginUI.usuario.correo}"/></dd>
             </dl>
         </section>
+
         <div class="grid section-space">
+            <h:panelGroup layout="block" styleClass="card">
+                <h2>Mi perfil</h2>
+                <p>Consulta tus datos personales, rol asignado e información de cuenta.</p>
+                <h:link outcome="/mi-perfil" value="Ver mi perfil" styleClass="button"/>
+            </h:panelGroup>
+
             <h:panelGroup layout="block" styleClass="card" rendered="#{loginUI.usuario.tienePermiso('consultar_equipos')}">
-                <h2>Mis equipos</h2><p>Consulta el inventario que tienes asignado.</p>
+                <h2>Mis equipos</h2>
+                <p>Consulta el inventario que tienes asignado.</p>
                 <h:link outcome="/mis-equipos" value="Consultar mis equipos" styleClass="button"/>
             </h:panelGroup>
 
             <h:panelGroup layout="block" styleClass="card" rendered="#{loginUI.usuario.tienePermiso('crear_ticket')}">
-                <h2>Registrar ticket</h2><p>Selecciona tu equipo y describe la incidencia.</p>
+                <h2>Registrar ticket</h2>
+                <p>Selecciona tu equipo y describe la incidencia.</p>
                 <h:link outcome="/nuevo-ticket" value="Registrar una incidencia" styleClass="button"/>
             </h:panelGroup>
+
             <h:panelGroup layout="block" styleClass="card" rendered="#{loginUI.usuario.tienePermiso('crear_ticket')}">
-                <h2>Mis tickets</h2><p>Consulta tus incidencias registradas y su estado actual.</p>
+                <h2>Mis tickets</h2>
+                <p>Consulta tus incidencias registradas y su estado actual.</p>
                 <h:link outcome="/mis-tickets" value="Consultar mis tickets" styleClass="button"/>
             </h:panelGroup>
+
             <h:panelGroup layout="block" styleClass="card" rendered="#{loginUI.usuario.tienePermiso('atender_tickets')}">
                 <h2>Seguimiento de tickets</h2>
                 <p>Documenta observaciones y avances durante la atención de incidencias.</p>
@@ -30,14 +45,15 @@
             </h:panelGroup>
 
             <h:panelGroup layout="block" styleClass="card" rendered="#{loginUI.usuario.tienePermiso('administrar_tickets')}">
-                <h2>Administrar tickets</h2><p>Consulta todos los tickets registrados en el sistema para supervisar su atención.</p>
+                <h2>Administrar tickets</h2>
+                <p>Consulta todos los tickets registrados en el sistema para supervisar su atención.</p>
                 <h:link outcome="/tickets-admin" value="Consultar todos los tickets" styleClass="button"/>
             </h:panelGroup>
 
-            <h:panelGroup layout="block" styleClass="card" rendered="#{not loginUI.usuario.tienePermiso('crear_ticket') and not loginUI.usuario.tienePermiso('consultar_equipos') and not loginUI.usuario.tienePermiso('atender_tickets') and not loginUI.usuario.tienePermiso('administrar_tickets')}">
-                <h2>Acceso por rol verificado</h2>
-                <p>Tu sesión corresponde al rol <h:outputText value="#{loginUI.usuario.rol.nombreRol}"/>.</p>
-                <p>Las herramientas de atención y administración se implementarán en los siguientes sprints.</p>
+            <h:panelGroup layout="block" styleClass="card" rendered="#{loginUI.usuario.tienePermiso('administrar_tickets')}">
+                <h2>Bitácora</h2>
+                <p>Revisa el historial de cambios de prioridad y reasignaciones.</p>
+                <h:link outcome="/bitacora-tickets" value="Consultar bitácora" styleClass="button"/>
             </h:panelGroup>
         </div>
     </ui:define>

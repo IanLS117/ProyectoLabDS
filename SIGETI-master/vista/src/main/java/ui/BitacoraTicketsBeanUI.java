@@ -6,13 +6,14 @@ import jakarta.faces.context.FacesContext;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Named;
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import mx.desarrollo.delegate.DelegateTicket;
 import mx.desarrollo.entity.BitacoraTicket;
-import mx.desarrollo.entity.Ticket;
 import mx.desarrollo.entity.Usuario;
 
 @Named("bitacoraUI")
@@ -24,26 +25,17 @@ public class BitacoraTicketsBeanUI implements Serializable {
 
     private final DelegateTicket delegateTicket = new DelegateTicket();
 
+    private List<BitacoraTicket> todosLosRegistros = new ArrayList<>();
     private List<BitacoraTicket> registros = new ArrayList<>();
     private List<BitacoraTicket> registrosFiltrados;
-    private List<Ticket> listaTickets = new ArrayList<>();
-    private Integer idTicketFiltro;
+
+    private String prioridadFiltro;
+    private LocalDate fechaFiltro;
+    private String estadoFiltro;
 
     @PostConstruct
     public void init() {
-        cargarTicketsSelector();
         cargarBitacora();
-    }
-
-    public void cargarTicketsSelector() {
-        try {
-            Usuario admin = obtenerUsuarioSesion();
-            if (admin != null) {
-                this.listaTickets = delegateTicket.obtenerTodosAdmin(admin.getRfc());
-            }
-        } catch (Exception e) {
-            this.listaTickets = new ArrayList<>();
-        }
     }
 
     public void cargarBitacora() {
@@ -52,18 +44,40 @@ public class BitacoraTicketsBeanUI implements Serializable {
             if (admin == null) {
                 return;
             }
-            if (idTicketFiltro != null && idTicketFiltro > 0) {
-                registros = delegateTicket.obtenerBitacoraTicket(admin.getRfc(), idTicketFiltro);
-            } else {
-                registros = delegateTicket.obtenerBitacoraGeneral(admin.getRfc());
-            }
-            registrosFiltrados = null;
+            todosLosRegistros = delegateTicket.obtenerBitacoraGeneral(admin.getRfc());
+            aplicarFiltros();
         } catch (Exception e) {
+            todosLosRegistros = new ArrayList<>();
             registros = new ArrayList<>();
+            registrosFiltrados = null;
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR,
                             "Error al consultar bitácora", e.getMessage()));
         }
+    }
+
+    public void aplicarFiltros() {
+        if (todosLosRegistros == null) {
+            registros = new ArrayList<>();
+            registrosFiltrados = null;
+            return;
+        }
+        registros = todosLosRegistros.stream()
+                .filter(b -> prioridadFiltro == null || prioridadFiltro.isBlank()
+                        || (b.getTicket() != null && prioridadFiltro.equalsIgnoreCase(b.getTicket().getPrioridad())))
+                .filter(b -> estadoFiltro == null || estadoFiltro.isBlank()
+                        || (b.getTicket() != null && estadoFiltro.equalsIgnoreCase(b.getTicket().getEstado())))
+                .filter(b -> fechaFiltro == null
+                        || (b.getFechaHora() != null && b.getFechaHora().toLocalDate().equals(fechaFiltro)))
+                .collect(Collectors.toList());
+        registrosFiltrados = null;
+    }
+
+    public void limpiarFiltros() {
+        this.prioridadFiltro = null;
+        this.fechaFiltro = null;
+        this.estadoFiltro = null;
+        aplicarFiltros();
     }
 
     public String formatearFecha(LocalDateTime fecha) {
@@ -103,15 +117,27 @@ public class BitacoraTicketsBeanUI implements Serializable {
         this.registrosFiltrados = registrosFiltrados;
     }
 
-    public List<Ticket> getListaTickets() {
-        return listaTickets;
+    public String getPrioridadFiltro() {
+        return prioridadFiltro;
     }
 
-    public Integer getIdTicketFiltro() {
-        return idTicketFiltro;
+    public void setPrioridadFiltro(String prioridadFiltro) {
+        this.prioridadFiltro = prioridadFiltro;
     }
 
-    public void setIdTicketFiltro(Integer idTicketFiltro) {
-        this.idTicketFiltro = idTicketFiltro;
+    public LocalDate getFechaFiltro() {
+        return fechaFiltro;
+    }
+
+    public void setFechaFiltro(LocalDate fechaFiltro) {
+        this.fechaFiltro = fechaFiltro;
+    }
+
+    public String getEstadoFiltro() {
+        return estadoFiltro;
+    }
+
+    public void setEstadoFiltro(String estadoFiltro) {
+        this.estadoFiltro = estadoFiltro;
     }
 }

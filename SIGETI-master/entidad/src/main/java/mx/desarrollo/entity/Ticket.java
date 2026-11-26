@@ -21,7 +21,7 @@ public class Ticket implements Serializable {
     @Column(name = "id_ticket")
     private Integer idTicket;
 
-    @Column(name = "folio", nullable = false, unique = true, length = 40)
+    @Column(name = "folio", nullable = false, unique = true, length = 10)
     private String folio;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)

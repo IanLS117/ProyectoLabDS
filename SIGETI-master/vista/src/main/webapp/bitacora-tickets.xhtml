@@ -8,6 +8,36 @@
     <ui:define name="titulo">Bitácora de Auditoría de Tickets</ui:define>
 
     <ui:define name="contenido">
+        <style>
+            .tabla-bitacora-legible table {
+                table-layout: auto !important;
+                width: 100%;
+            }
+            .tabla-bitacora-legible td,
+            .tabla-bitacora-legible th {
+                white-space: normal !important;
+                word-break: normal !important;
+                overflow-wrap: break-word !important;
+                vertical-align: middle;
+            }
+            .tabla-bitacora-legible .ui-column-filter {
+                display: none !important;
+            }
+            .panel-filtros-grid {
+                display: flex;
+                flex-direction: column;
+                gap: 0.85rem;
+                min-width: 260px;
+                padding: 0.25rem;
+            }
+            .panel-filtros-grid label {
+                display: block;
+                font-size: 0.85rem;
+                font-weight: 600;
+                margin-bottom: 0.3rem;
+            }
+        </style>
+
         <h:form id="formBitacora">
             <p:growl id="mensajes" showDetail="true" life="4000"/>
 
@@ -19,18 +49,66 @@
                     </div>
 
                     <div style="display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap;">
-                        <p:selectOneMenu id="filtroTicket"
-                                         value="#{bitacoraUI.idTicketFiltro}"
-                                         filter="true"
-                                         filterMatchMode="contains"
-                                         style="width: 310px;">
-                            <f:selectItem itemLabel="Todos los tickets (bitácora general)" itemValue="#{null}"/>
-                            <f:selectItems value="#{bitacoraUI.listaTickets}"
-                                           var="t"
-                                           itemValue="#{t.idTicket}"
-                                           itemLabel="#{t.folio} - #{t.estado}"/>
-                            <p:ajax listener="#{bitacoraUI.cargarBitacora}" update="tablaBitacora mensajes"/>
-                        </p:selectOneMenu>
+                        <p:commandButton id="btnFiltros"
+                                         value="Filtros"
+                                         icon="pi pi-filter"
+                                         type="button"
+                                         styleClass="secondary"/>
+
+                        <p:overlayPanel for="btnFiltros" widgetVar="panelFiltrosWidget" dismissable="true">
+                            <div class="panel-filtros-grid">
+                                <div>
+                                    <label for="filtroPrioridad">Prioridad</label>
+                                    <p:selectOneMenu id="filtroPrioridad"
+                                                     value="#{bitacoraUI.prioridadFiltro}"
+                                                     style="width: 100%;">
+                                        <f:selectItem itemLabel="Todas" itemValue=""/>
+                                        <f:selectItem itemLabel="Alta" itemValue="Alta"/>
+                                        <f:selectItem itemLabel="Media" itemValue="Media"/>
+                                        <f:selectItem itemLabel="Baja" itemValue="Baja"/>
+                                    </p:selectOneMenu>
+                                </div>
+
+                                <div>
+                                    <label for="filtroFecha">Fecha</label>
+                                    <p:datePicker id="filtroFecha"
+                                                  value="#{bitacoraUI.fechaFiltro}"
+                                                  pattern="dd/MM/yyyy"
+                                                  showIcon="true"
+                                                  placeholder="dd/mm/aaaa"
+                                                  style="width: 100%;"/>
+                                </div>
+
+                                <div>
+                                    <label for="filtroEstado">Estado</label>
+                                    <p:selectOneMenu id="filtroEstado"
+                                                     value="#{bitacoraUI.estadoFiltro}"
+                                                     style="width: 100%;">
+                                        <f:selectItem itemLabel="Todos" itemValue=""/>
+                                        <f:selectItem itemLabel="Enviado" itemValue="Enviado"/>
+                                        <f:selectItem itemLabel="En atención" itemValue="En atención"/>
+                                        <f:selectItem itemLabel="Terminado" itemValue="Terminado"/>
+                                    </p:selectOneMenu>
+                                </div>
+
+                                <div style="display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 0.25rem;">
+                                    <p:commandButton value="Limpiar"
+                                                     icon="pi pi-times"
+                                                     action="#{bitacoraUI.limpiarFiltros}"
+                                                     process="@this"
+                                                     update="tablaBitacora filtroPrioridad filtroFecha filtroEstado mensajes"
+                                                     oncomplete="PF('panelFiltrosWidget').hide()"
+                                                     styleClass="secondary"/>
+
+                                    <p:commandButton value="Aplicar"
+                                                     icon="pi pi-check"
+                                                     action="#{bitacoraUI.aplicarFiltros}"
+                                                     process="filtroPrioridad filtroFecha filtroEstado @this"
+                                                     update="tablaBitacora mensajes"
+                                                     oncomplete="PF('panelFiltrosWidget').hide()"/>
+                                </div>
+                            </div>
+                        </p:overlayPanel>
 
                         <p:commandButton value="Actualizar"
                                          icon="pi pi-refresh"
@@ -46,6 +124,8 @@
                              value="#{bitacoraUI.registros}"
                              widgetVar="tablaBitacoraWidget"
                              filteredValue="#{bitacoraUI.registrosFiltrados}"
+                             styleClass="tabla-bitacora-legible"
+                             tableStyle="table-layout: auto;"
                              paginator="true"
                              rows="12"
                              paginatorPosition="bottom"
@@ -55,43 +135,67 @@
                         <div style="display: flex; justify-content: flex-end;">
                             <p:inputText id="globalFilter"
                                          onkeyup="PF('tablaBitacoraWidget').filter()"
-                                         placeholder="Buscar por folio, evento, valor o responsable..."
-                                         style="width: 340px;"/>
+                                         placeholder="Buscar por folio, problema, evento, valor o responsable..."
+                                         style="width: 360px;"/>
                         </div>
                     </f:facet>
 
-                    <p:column headerText="Fecha y hora" sortBy="#{b.fechaHora}" style="width: 170px;">
-                        <h:outputText value="#{bitacoraUI.formatearFecha(b.fechaHora)}"/>
+                    <p:column headerText="Fecha y hora" style="width: 95px; text-align: center;">
+                        <div style="display: flex; flex-direction: column; line-height: 1.25;">
+                            <h:outputText value="#{b.fechaHora}" style="white-space: nowrap;">
+                                <f:convertDateTime type="localDateTime" pattern="dd/MM/yyyy"/>
+                            </h:outputText>
+                            <h:outputText value="#{b.fechaHora}" style="font-size: 0.85em; opacity: 0.75; white-space: nowrap;">
+                                <f:convertDateTime type="localDateTime" pattern="HH:mm"/>
+                            </h:outputText>
+                        </div>
                     </p:column>
 
-                    <p:column headerText="Folio" sortBy="#{b.ticket.folio}" filterBy="#{b.ticket.folio}" filterMatchMode="contains" style="width: 190px;">
-                        <h:outputText value="#{b.ticket.folio}"/>
+                    <p:column headerText="Folio"
+                              filterBy="#{b.ticket.folio}"
+                              filterMatchMode="contains"
+                              filterStyle="display: none;"
+                              style="width: 105px; text-align: center;">
+                        <h:outputText value="#{b.ticket.folio}" style="white-space: nowrap; font-weight: 600;"/>
+                    </p:column>
+
+                    <p:column headerText="Descripción del problema"
+                              filterBy="#{b.ticket.descripcion}"
+                              filterMatchMode="contains"
+                              filterStyle="display: none;"
+                              style="min-width: 200px;">
+                        <h:outputText value="#{not empty b.ticket.descripcion ? b.ticket.descripcion : '-'}"/>
                     </p:column>
 
                     <p:column headerText="Tipo de cambio"
-                              sortBy="#{bitacoraUI.etiquetarEvento(b.tipoEvento)}"
                               filterBy="#{bitacoraUI.etiquetarEvento(b.tipoEvento)}"
                               filterMatchMode="contains"
-                              style="width: 185px;">
+                              filterStyle="display: none;"
+                              style="width: 145px;">
                         <strong><h:outputText value="#{bitacoraUI.etiquetarEvento(b.tipoEvento)}"/></strong>
                     </p:column>
 
-                    <p:column headerText="Valor anterior" filterBy="#{b.valorAnterior}" filterMatchMode="contains">
-                        <h:outputText value="#{not empty b.valorAnterior ? b.valorAnterior : '-'}"/>
-                    </p:column>
-
-                    <p:column headerText="Valor nuevo" filterBy="#{b.valorNuevo}" filterMatchMode="contains">
-                        <h:outputText value="#{b.valorNuevo}"/>
+                    <p:column headerText="Valor actual"
+                              filterBy="#{b.valorNuevo}"
+                              filterMatchMode="contains"
+                              filterStyle="display: none;"
+                              style="min-width: 150px;">
+                        <h:outputText value="#{not empty b.valorNuevo ? b.valorNuevo : '-'}"/>
                     </p:column>
 
                     <p:column headerText="Realizado por"
-                              sortBy="#{b.actor != null ? b.actor.nombre : 'Sistema'}"
                               filterBy="#{b.actor != null ? b.actor.nombre.concat(' ').concat(b.actor.apellidos).concat(' ').concat(b.actor.rfc) : 'Sistema'}"
-                              filterMatchMode="contains">
+                              filterMatchMode="contains"
+                              filterStyle="display: none;"
+                              style="min-width: 155px;">
                         <h:outputText value="#{b.actor != null ? b.actor.nombre.concat(' ').concat(b.actor.apellidos).concat(' (').concat(b.actor.rfc).concat(')') : 'Sistema'}"/>
                     </p:column>
 
-                    <p:column headerText="Observación" filterBy="#{b.observacion}" filterMatchMode="contains">
+                    <p:column headerText="Observación"
+                              filterBy="#{b.observacion}"
+                              filterMatchMode="contains"
+                              filterStyle="display: none;"
+                              style="min-width: 160px;">
                         <h:outputText value="#{not empty b.observacion ? b.observacion : '-'}"/>
                     </p:column>
                 </p:dataTable>

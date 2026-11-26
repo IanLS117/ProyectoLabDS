@@ -1,0 +1,71 @@
+<ui:composition template="/WEB-INF/templates/principal.xhtml"
+                xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="jakarta.faces.facelets"
+                xmlns:h="jakarta.faces.html"
+                xmlns:p="http://primefaces.org/ui">
+
+    <ui:define name="titulo">Información del Usuario</ui:define>
+
+    <ui:define name="contenido">
+        <h:form id="formPerfil">
+            <p:growl id="mensajes" showDetail="true" life="4000"/>
+
+            <section class="panel">
+                <h2>Datos personales y de cuenta</h2>
+                <div class="form-grid">
+                    <div class="field">
+                        <p:outputLabel for="rfc" value="RFC"/>
+                        <p:inputText id="rfc" value="#{perfilUI.usuario.rfc}" readonly="true"/>
+                    </div>
+                    <div class="field">
+                        <p:outputLabel for="rol" value="Rol asignado"/>
+                        <p:inputText id="rol" value="#{perfilUI.usuario.rol.nombreRol}" readonly="true"/>
+                    </div>
+                    <div class="field">
+                        <p:outputLabel for="nombre" value="Nombre"/>
+                        <p:inputText id="nombre" value="#{perfilUI.usuario.nombre}" readonly="true"/>
+                    </div>
+                    <div class="field">
+                        <p:outputLabel for="apellidos" value="Apellidos"/>
+                        <p:inputText id="apellidos" value="#{perfilUI.usuario.apellidos}" readonly="true"/>
+                    </div>
+                    <div class="field">
+                        <p:outputLabel for="correo" value="Correo institucional"/>
+                        <p:inputText id="correo" value="#{perfilUI.usuario.correo}" readonly="true"/>
+                    </div>
+                    <div class="field">
+                        <p:outputLabel for="telefono" value="Número de teléfono"/>
+                        <p:inputText id="telefono"
+                                     value="#{not empty perfilUI.usuario.telefono ? perfilUI.usuario.telefono : 'Sin especificar'}"
+                                     readonly="true"/>
+                    </div>
+                    <div class="field">
+                        <p:outputLabel for="municipio" value="Municipio"/>
+                        <p:inputText id="municipio"
+                                     value="#{not empty perfilUI.usuario.municipio ? perfilUI.usuario.municipio : 'Sin especificar'}"
+                                     readonly="true"/>
+                    </div>
+                    <div class="field">
+                        <p:outputLabel for="area" value="Área"/>
+                        <p:inputText id="area"
+                                     value="#{not empty perfilUI.usuario.area ? perfilUI.usuario.area : 'Sin especificar'}"
+                                     readonly="true"/>
+                    </div>
+                    <div class="field">
+                        <p:outputLabel for="edificio" value="Edificio"/>
+                        <p:inputText id="edificio"
+                                     value="#{not empty perfilUI.usuario.edificio ? perfilUI.usuario.edificio : 'Sin especificar'}"
+                                     readonly="true"/>
+                    </div>
+                    <h:panelGroup layout="block" styleClass="field"
+                                  rendered="#{perfilUI.usuario.tienePermiso('atender_tickets')}">
+                        <p:outputLabel for="areaExperto" value="Área de experto"/>
+                        <p:inputText id="areaExperto"
+                                     value="#{not empty perfilUI.usuario.areaExperto ? perfilUI.usuario.areaExperto : 'Sin asignar'}"
+                                     readonly="true"/>
+                    </h:panelGroup>
+                </div>
+            </section>
+        </h:form>
+    </ui:define>
+</ui:composition>

@@ -1,7 +1,9 @@
 <ui:composition template="/WEB-INF/templates/principal.xhtml"
                 xmlns="http://www.w3.org/1999/xhtml"
-                xmlns:h="jakarta.faces.html" xmlns:f="jakarta.faces.core"
-                xmlns:ui="jakarta.faces.facelets" xmlns:p="http://primefaces.org/ui">
+                xmlns:h="jakarta.faces.html"
+                xmlns:f="jakarta.faces.core"
+                xmlns:ui="jakarta.faces.facelets"
+                xmlns:p="http://primefaces.org/ui">
     <ui:define name="titulo">Seguimiento de tickets</ui:define>
     <ui:define name="contenido">
         <h:form id="formSeguimientos">
@@ -9,6 +11,7 @@
                      severity="warn,error,fatal" sticky="true" keepAlive="false"/>
             <p:growl id="confirmaciones" showSummary="true" showDetail="true" globalOnly="true"
                      severity="info" life="5000" keepAlive="false"/>
+
             <section class="panel">
                 <p>Atiende los tickets que tienes asignados y documenta el trabajo realizado.</p>
                 <p:commandButton value="Actualizar listado" icon="pi pi-refresh"
@@ -19,6 +22,7 @@
                     <p:column headerText="Folio"><h:outputText value="#{t.folio}"/></p:column>
                     <p:column headerText="Equipo"><h:outputText value="#{t.equipo.numeroInventario} - #{t.equipo.marca} #{t.equipo.modelo}"/></p:column>
                     <p:column headerText="Problema reportado"><h:outputText value="#{t.descripcion}"/></p:column>
+                    <p:column headerText="Prioridad"><h:outputText value="#{t.prioridad}"/></p:column>
                     <p:column headerText="Estado"><h:outputText value="#{t.estado}" styleClass="badge"/></p:column>
                     <p:column headerText="Acción">
                         <p:commandButton value="Dar seguimiento" icon="pi pi-comments"
@@ -28,18 +32,22 @@
                     </p:column>
                 </p:dataTable>
             </section>
+
             <h:panelGroup id="panelDetalle" layout="block" styleClass="section-space">
                 <h:panelGroup rendered="#{seguimientoBeanUI.ticketSeleccionado != null}">
                     <section class="panel">
                         <h2>Ticket <h:outputText value="#{seguimientoBeanUI.ticketSeleccionado.folio}"/></h2>
                         <p>Estado actual: <strong><h:outputText value="#{seguimientoBeanUI.ticketSeleccionado.estado}"/></strong></p>
+                        <p>Prioridad: <strong><h:outputText value="#{seguimientoBeanUI.ticketSeleccionado.prioridad}"/></strong></p>
                         <p>Soporte asignado: <h:outputText value="#{seguimientoBeanUI.ticketSeleccionado.tecnico.nombre} #{seguimientoBeanUI.ticketSeleccionado.tecnico.apellidos}"/></p>
+
                         <h:panelGroup layout="block" rendered="#{seguimientoBeanUI.puedeIniciar}">
                             <p>Inicia la atención para registrar avances y, posteriormente, la solución.</p>
                             <p:commandButton value="Iniciar atención" icon="pi pi-play"
                                              action="#{seguimientoBeanUI.iniciarAtencion}"
                                              process="@this" update="@form"/>
                         </h:panelGroup>
+
                         <h:panelGroup layout="block" rendered="#{seguimientoBeanUI.puedeTerminar}">
                             <h3>Registrar avance</h3>
                             <p:outputLabel for="txtObservacion" value="Nueva observación *" style="display:block"/>
@@ -48,6 +56,7 @@
                             <p:commandButton value="Guardar observación" icon="pi pi-save"
                                              action="#{seguimientoBeanUI.guardarObservacion}"
                                              process="@this txtObservacion" update="@form"/>
+
                             <h3>Terminar atención</h3>
                             <p:outputLabel for="txtSolucion" value="Solución final *" style="display:block"/>
                             <p:inputTextarea id="txtSolucion" value="#{seguimientoBeanUI.solucion}"
@@ -58,9 +67,11 @@
                                              action="#{seguimientoBeanUI.terminarTicket}"
                                              process="@this txtSolucion" update="@form"/>
                         </h:panelGroup>
+
                         <h:panelGroup layout="block" rendered="#{seguimientoBeanUI.ticketSeleccionado.estado eq 'Terminado'}">
                             <p>La atención ha terminado. Puedes consultar las observaciones y la solución final en el historial.</p>
                         </h:panelGroup>
+
                         <h3>Historial registrado</h3>
                         <p:dataTable value="#{seguimientoBeanUI.historialSeguimientos}" var="seg" reflow="true"
                                      emptyMessage="Aún no se han registrado observaciones para este ticket.">

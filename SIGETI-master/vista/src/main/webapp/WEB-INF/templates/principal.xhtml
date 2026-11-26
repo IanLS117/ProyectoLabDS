@@ -1,5 +1,9 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:h="jakarta.faces.html" xmlns:f="jakarta.faces.core" xmlns:ui="jakarta.faces.facelets" xmlns:p="http://primefaces.org/ui">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:f="jakarta.faces.core"
+      xmlns:ui="jakarta.faces.facelets"
+      xmlns:p="http://primefaces.org/ui">
 <ui:insert name="metadata"/>
 <h:head>
     <title><ui:insert name="titulo">SIGETI</ui:insert> | SIGETI</title>
@@ -7,25 +11,148 @@
     <h:outputStylesheet name="sigeti.css"/>
 </h:head>
 <h:body>
-    <header class="topbar">
-        <div><h:link outcome="/index" styleClass="brand" value="SIGETI"/><span class="subtitle">Sistema de tickets</span></div>
-        <nav aria-label="Navegación principal">
-            <h:link outcome="/index" value="Inicio"/>
-            <h:link outcome="/mis-equipos" value="Mis equipos" rendered="#{loginUI.usuario.tienePermiso('consultar_equipos')}"/>
-            <h:link outcome="/nuevo-ticket" value="Registrar ticket" rendered="#{loginUI.usuario.tienePermiso('crear_ticket')}"/>
-            <h:link outcome="/mis-tickets" value="Mis tickets" rendered="#{loginUI.usuario.tienePermiso('crear_ticket')}"/>
-            <h:link outcome="/seguimientos" value="Seguimientos" rendered="#{loginUI.usuario.tienePermiso('atender_tickets')}"/>
-            <h:link outcome="/tickets-admin" value="Administrar tickets" rendered="#{loginUI.usuario.tienePermiso('administrar_tickets')}"/>
-            <h:link outcome="/bitacora-tickets" value="Bitácora" rendered="#{loginUI.usuario.tienePermiso('administrar_tickets')}"/>
-        </nav>
-        <h:form id="salir">
-            <p:commandButton value="Cerrar sesión" action="#{loginUI.cerrarSesion}" ajax="false" styleClass="secondary"/>
-        </h:form>
-    </header>
-    <main class="page">
-        <div class="session-info"><h:outputText value="#{loginUI.usuario.nombre} #{loginUI.usuario.apellidos} · #{loginUI.usuario.rol.nombreRol}"/></div>
-        <h1><ui:insert name="titulo">Inicio</ui:insert></h1>
-        <ui:insert name="contenido"/>
-    </main>
+    <div id="appLayout" class="app-layout sidebar-collapsed">
+        <aside id="sidebar" class="sidebar" aria-label="Menú lateral">
+            <div class="sidebar-header">
+                <div class="sidebar-brand">
+                    <h:link outcome="/index" styleClass="brand-logo-link">
+                        <h:graphicImage name="Consejeria_Juridica_SinFondo.png"
+                                        alt="Consejería Jurídica del Estado"
+                                        styleClass="sidebar-logo"/>
+                        <div class="brand-texts">
+                            <span class="brand">SIGETI</span>
+                            <span class="subtitle">Sistema de Tickets</span>
+                        </div>
+                    </h:link>
+                </div>
+                <button type="button"
+                        class="sidebar-toggle"
+                        title="Contraer o expandir menú"
+                        aria-label="Contraer o expandir menú"
+                        onclick="toggleSidebar()">
+                    <i class="pi pi-bars"></i>
+                </button>
+            </div>
+
+            <div class="sidebar-section-title">MENÚ</div>
+
+            <nav class="sidebar-nav" aria-label="Navegación principal">
+                <h:link outcome="/index" styleClass="nav-item">
+                    <i class="pi pi-home"></i>
+                    <span class="nav-text">Inicio</span>
+                </h:link>
+
+                <h:link outcome="/mi-perfil" styleClass="nav-item">
+                    <i class="pi pi-user"></i>
+                    <span class="nav-text">Mi perfil</span>
+                </h:link>
+
+                <h:link outcome="/mis-equipos" styleClass="nav-item"
+                        rendered="#{loginUI.usuario.tienePermiso('consultar_equipos')}">
+                    <i class="pi pi-desktop"></i>
+                    <span class="nav-text">Mis equipos</span>
+                </h:link>
+
+                <h:link outcome="/nuevo-ticket" styleClass="nav-item"
+                        rendered="#{loginUI.usuario.tienePermiso('crear_ticket')}">
+                    <i class="pi pi-plus-circle"></i>
+                    <span class="nav-text">Registrar ticket</span>
+                </h:link>
+
+                <h:link outcome="/mis-tickets" styleClass="nav-item"
+                        rendered="#{loginUI.usuario.tienePermiso('crear_ticket')}">
+                    <i class="pi pi-ticket"></i>
+                    <span class="nav-text">Mis tickets</span>
+                </h:link>
+
+                <h:link outcome="/seguimientos" styleClass="nav-item"
+                        rendered="#{loginUI.usuario.tienePermiso('atender_tickets')}">
+                    <i class="pi pi-wrench"></i>
+                    <span class="nav-text">Tickets</span>
+                </h:link>
+
+                <h:link outcome="/tickets-admin" styleClass="nav-item"
+                        rendered="#{loginUI.usuario.tienePermiso('administrar_tickets')}">
+                    <i class="pi pi-sliders-h"></i>
+                    <span class="nav-text">Administrar tickets</span>
+                </h:link>
+
+                <h:link outcome="/bitacora-tickets" styleClass="nav-item"
+                        rendered="#{loginUI.usuario.tienePermiso('administrar_tickets')}">
+                    <i class="pi pi-history"></i>
+                    <span class="nav-text">Bitácora</span>
+                </h:link>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="session-badge">
+                    <strong><h:outputText value="#{loginUI.usuario.nombre} #{loginUI.usuario.apellidos}"/></strong>
+                    <span><h:outputText value="#{loginUI.usuario.rol.nombreRol}"/></span>
+                </div>
+                <h:form id="salir">
+                    <p:commandButton value="Cerrar sesión"
+                                     icon="pi pi-sign-out"
+                                     action="#{loginUI.cerrarSesion}"
+                                     ajax="false"
+                                     styleClass="btn-logout"/>
+                </h:form>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <header class="topbar-institucional">
+                <div class="topbar-left">
+                    <button type="button"
+                            class="mobile-menu-btn"
+                            aria-label="Abrir menú"
+                            onclick="toggleSidebar()">
+                        <i class="pi pi-bars"></i>
+                    </button>
+                    <div class="inst-titles">
+                        <span class="inst-name">SIGETI · SISTEMA INSTITUCIONAL DE TICKETS</span>
+                        <span class="inst-sub"><ui:insert name="titulo">Inicio</ui:insert></span>
+                    </div>
+                </div>
+                <div class="topbar-right">
+                    <span class="user-pill">
+                        <i class="pi pi-id-card"></i>
+                        <h:outputText value="#{loginUI.usuario.rfc}"/>
+                    </span>
+                </div>
+            </header>
+
+            <div class="page-body">
+                <h1 class="page-title"><ui:insert name="titulo">Inicio</ui:insert></h1>
+                <ui:insert name="contenido"/>
+            </div>
+        </main>
+    </div>
+
+    <script type="text/javascript">
+        (function () {
+            var layout = document.getElementById('appLayout');
+            if (!layout) return;
+            if (window.innerWidth &gt; 900) {
+                var estado = localStorage.getItem('sigeti_sidebar');
+                if (estado === 'expanded') {
+                    layout.classList.remove('sidebar-collapsed');
+                } else {
+                    layout.classList.add('sidebar-collapsed');
+                }
+            }
+        })();
+
+        function toggleSidebar() {
+            var layout = document.getElementById('appLayout');
+            if (!layout) return;
+            if (window.innerWidth &lt;= 900) {
+                layout.classList.toggle('sidebar-open');
+            } else {
+                layout.classList.toggle('sidebar-collapsed');
+                var colapsado = layout.classList.contains('sidebar-collapsed');
+                localStorage.setItem('sigeti_sidebar', colapsado ? 'collapsed' : 'expanded');
+            }
+        }
+    </script>
 </h:body>
 </html>

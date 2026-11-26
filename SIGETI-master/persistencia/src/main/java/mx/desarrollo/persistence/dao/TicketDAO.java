@@ -8,9 +8,8 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
-import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import mx.desarrollo.entity.Equipo;
@@ -41,7 +40,7 @@ public class TicketDAO {
                         .orElse(null));
     }
 
-    public Ticket registrar(String rfc, String numeroInventario, Integer idTipo, String descripcion, java.util.function.Function<java.util.Map<Usuario, Long>, Usuario> seleccionarTecnico) {
+    public Ticket registrar(String rfc, String numeroInventario, Integer idTipo, String descripcion, Function<Map<Usuario, Long>, Usuario> seleccionarTecnico) {
         EntityManager manager = entityManagers.get();
         EntityTransaction transaccion = manager.getTransaction();
         try {
@@ -68,7 +67,7 @@ public class TicketDAO {
                 throw new IllegalArgumentException("Selecciona un tipo de incidencia válido.");
             }
             Ticket ticket = new Ticket();
-            ticket.setFolio("TCK-" + UUID.randomUUID().toString().toUpperCase(Locale.ROOT));
+            ticket.setFolio(generarFolioUnico(manager));
             ticket.setUsuario(solicitante);
 
             Map<Usuario, Long> cargas = contarTicketsActivosPorTecnico(manager);
@@ -103,6 +102,20 @@ public class TicketDAO {
         } finally {
             manager.close();
         }
+    }
+
+    private String generarFolioUnico(EntityManager manager) {
+        String folio;
+        Long existentes;
+        do {
+            int numero = ThreadLocalRandom.current().nextInt(100000, 1000000);
+            folio = String.format("TCK-%06d", numero);
+            existentes = manager.createQuery(
+                            "SELECT COUNT(t) FROM Ticket t WHERE t.folio = :folio", Long.class)
+                    .setParameter("folio", folio)
+                    .getSingleResult();
+        } while (existentes != null && existentes > 0);
+        return folio;
     }
 
     public Map<Usuario, Long> contarTicketsActivosPorTecnico(EntityManager manager) {
